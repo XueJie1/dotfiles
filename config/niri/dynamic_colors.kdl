@@ -1,0 +1,15 @@
+// 自动生成的文件
+layout {
+    focus-ring {
+        // 使用 Material You 的 Primary 颜色
+        active-gradient from="#c0ce7d" to="#c5c9a8" angle=135
+        urgent-color "#ffb4ab"
+    }
+}
+
+recent-windows {
+    highlight {
+        active-color "#414b08"
+        urgent-color "#ffb4ab"
+    }
+}

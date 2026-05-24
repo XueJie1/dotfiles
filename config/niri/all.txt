@@ -1,0 +1,479 @@
+=== 文件名: ./scripts/swayidle.sh ===
+#!/usr/bin/env bash
+
+# 5分钟锁屏，10分钟熄屏，20分钟休眠
+swayidle -w \
+	timeout 300 'swaylock -f' \
+	timeout 600 'niri msg action power-off-monitors' \
+	resume 'niri msg action power-on-monitors'
+
+=== 文件名: ./animation.kdl ===
+// Animation settings.
+// The wiki explains how to configure individual animations:
+// https://yalter.github.io/niri/Configuration:-Animations
+// https://yalter.github.io/niri/Configuration:-Animations
+animations {
+    slowdown 0.9
+    workspace-switch {
+        spring damping-ratio=0.82 stiffness=523 epsilon=0.0001
+    }
+    horizontal-view-movement {
+        spring damping-ratio=0.86 stiffness=423 epsilon=0.0001
+
+    }
+}
+
+=== 文件名: ./colors.kdl ===
+layout{
+    focus-ring{
+        active-gradient from="#88d6bbcc" to="#a8cbe2cc" angle=135
+        urgent-color "#ffb4ab"
+
+        }
+}
+recent-windows {    
+    highlight {
+        active-color "#343b38"
+        urgent-color "#ffb4ab"
+    }
+}
+
+=== 文件名: ./rule.kdl ===
+// Window rules let you adjust behavior for individual windows.
+// Find more information on the wiki:
+// https://yalter.github.io/niri/Configuration:-Window-Rules
+
+// 放进overview里的壁纸程序
+layer-rule{
+    match namespace="hyprpaper"
+    match namespace="wallpaper"
+    match namespace="awww-daemon"
+    match namespace="swww-daemonoverview"
+     place-within-backdrop true
+}
+// 全局窗口规则
+window-rule {
+    // 圆角
+    geometry-corner-radius 8
+    // 去掉超出圆角的窗口内容
+    clip-to-geometry true
+    // 全局透明度
+    opacity 0.97
+    // 禁止边框画到背景里
+    draw-border-with-background false
+}
+// 以浮动模式打开imv（一个轻量化图片预览程序）且不自动聚焦
+window-rule {
+    match app-id="imv"
+    open-focused false
+    open-floating true
+    }
+// Open the Firefox picture-in-picture player as floating by default.
+// 以浮动模式打开
+window-rule {
+    // This app-id regular expression will work for both:
+    // - host Firefox (app-id is "firefox")
+    // - Flatpak Firefox (app-id is "org.mozilla.firefox")
+
+    match app-id="media_info"
+    match app-id="nm-connection-editor"
+    match app-id="niri-quick-switch"
+    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    match app-id="steam" title="Friends List"
+    match app-id="blueberry.py" title="蓝牙"
+    match app-id="blueman-manager"
+    match app-id="flameshot"
+    match app-id="com.github.hluk.copyq" 
+    match app-id="be.alexandervanhee.gradia"
+    match app-id="org.pulseaudio.pavucontrol" title="音量控制"
+    match app-id="org.gnome.clocks" title="时钟"
+    match app-id="fcitx" title="Fcitx5 Input Window"
+    match app-id="org.gnome.FileRoller"
+    match app-id="thunar" title="文件操作进度"
+    match app-id="waypaper"
+    match app-id="clipse-gui"
+    match title="群聊的聊天记录"
+    match title="聊天记录"
+    match title="日历"
+    match title="重命名"
+    match app-id="btrfs-assistant"
+    match app-id="markpix"
+    match title="Steam 设置" 
+    match title="另存为"
+    open-floating true
+}
+//快速终端和笔记
+window-rule {
+    match app-id="notebook"
+    match app-id="quickterminal"
+	open-floating true
+	default-floating-position x=20 y=20 relative-to="top"
+}
+window-rule{
+    match app-id="bluetui"
+	match app-id="clipse"
+    min-width 500 
+    min-height 600
+	open-floating true
+}
+    // waydroid调整
+window-rule {
+    match title="gsr ui"
+    match app-id="waydroid"
+    open-fullscreen true
+    open-floating true
+    focus-ring{
+        off
+    }
+    shadow {
+    off
+    }
+}
+// 取消图片预览、视频播放器之类的透明度，并且以浮动模式打开
+window-rule {
+    match title="图片查看器"
+    match title="画中画"
+    match title="图片和视频"
+    match title="视频播放器"
+    open-floating true
+    opacity 1.0
+}
+window-rule {
+    match app-id="mpv"
+    match app-id="celluloid"
+    opacity 1.0 
+}
+
+
+window-rule {
+    // This regular expression is intentionally made as specific as possible,
+    // since this is the default config, and we want no false positives.
+    // You can get away with just app-id="wezterm" if you want.
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    default-column-width {}
+}
+/-window-rule {
+    // This app-id regular expression will work for both:
+    // - host Firefox (app-id is "firefox")
+    // - Flatpak Firefox (app-id is "org.mozilla.firefox")
+    default-floating-position x=0 y=0 relative-to="bottom-right"
+    open-floating true
+}
+// window-rule {
+//     // This app-id regular expression will work for both:
+//     // - host Firefox (app-id is "firefox")
+//     // - Flatpak Firefox (app-id is "org.mozilla.firefox")
+
+//     match app-id="blueman-manager" title="蓝牙设备"
+//     match app-id="org.pulseaudio.pavucontrol" title="音量控制"
+//     default-floating-position x=0 y=0 relative-to="top-right"
+//     open-floating true
+// }
+// Example: block out two password managers from screen capture.
+// (This example rule is commented out with a "/-" in front.)
+/-window-rule {
+    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+    match app-id=r#"^org\.gnome\.World\.Secrets$"#
+
+    block-out-from "screen-capture"
+
+    // Use this instead if you want them visible on third-party screenshot tools.
+    // block-out-from "screencast"
+}
+
+=== 文件名: ./config.kdl ===
+include "animation.kdl"
+include "rule.kdl"
+include "colors.kdl"
+// 显示器
+output "eDP-1" {
+   mode "1920x1080@165.008"
+   scale 1.25
+   position x=0 y=0
+   focus-at-startup
+}
+// 环境变量
+environment {
+    LANG "zh_CN.UTF-8"
+    LC_CTYPE "en_US.UTF-8"
+    DISPLAY ":1"
+    // 强制让基于 QT 的程序（如 OBS）走 Wayland
+    QT_QPA_PLATFORM "wayland;xcb"
+    #WLR_RENDERER "gles2"
+}
+
+
+// 鼠标
+// -----------------------------------------------------------------
+// 输入设备配置
+// -----------------------------------------------------------------
+input {
+    keyboard {
+        xkb {
+            layout "us"
+        }
+    }
+    touchpad {
+        tap
+        dwt // 打字时禁用触摸板
+    }
+    mouse {
+	accel-profile "flat"
+    }
+
+}
+
+// -----------------------------------------------------------------
+// 布局设置
+// -----------------------------------------------------------------
+layout {
+    //设置工作区背景颜色
+    //background-color "transparent"
+    // Set gaps around windows in logical pixels.
+    // 窗口和窗口之间的间距
+    gaps 12
+    //empty-workspace-above-first
+    // When to center a column when changing focus, options are:
+    // - "never", default behavior, focusing an off-screen column will keep at the left
+    //   or right edge of the screen.
+    // - "always", the focused column will always be centered.
+    // - "on-overflow", focusing a column will center it if it doesn't fit
+    //   together with the previously focused column.
+    center-focused-column "never"
+    // You can customize the widths that "switch-preset-column-width" (Mod+R) toggles between.
+    // 预设窗口宽度
+    preset-column-widths {
+        // Proportion sets the width as a fraction of the output width, taking gaps into account.
+        // For example, you can perfectly fit four windows sized "proportion 0.25" on an output.
+        // The default preset widths are 1/3, 1/2 and 2/3 of the output.
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        // Fixed sets the width in logical pixels exactly.
+        // fixed 1920
+    }
+
+    // You can also customize the heights that "switch-preset-window-height" (Mod+Shift+R) toggles between.
+    // preset-window-heights { }
+
+    // You can change the default width of the new windows.
+    // 默认的窗口宽度
+    default-column-width { proportion 0.5; }
+    // If you leave the brackets empty, the windows themselves will decide their initial width.
+    // default-column-width {}
+
+    // By default focus ring and border are rendered as a solid background rectangle
+    // behind windows. That is, they will show up through semitransparent windows.
+    // This is because windows using client-side decorations can have an arbitrary shape.
+    //
+    // If you don't like that, you should uncomment `prefer-no-csd` below.
+    // Niri will draw focus ring and border *around* windows that agree to omit their
+    // client-side decorations.
+    //
+    // Alternatively, you can override it with a window rule called
+    // `draw-border-with-background`.
+
+    // You can change how the focus ring looks.
+    // 聚焦窗口边框，这个的颜色设置在我include进来的colors.kdl里
+    focus-ring {
+        // Uncomment this line to disable the focus ring.
+        // off
+        // How many logical pixels the ring extends out from the windows.
+        width 3
+
+        // Colors can be set in a variety of ways:
+        // - CSS named colors: "red"
+        // - RGB hex: "#rgb", "#rgba", "#rrggbb", "#rrggbbaa"
+        // - CSS-like notation: "rgb(255, 127, 0)", rgba(), hsl() and a few others.
+
+        // Color of the ring on the active monitor.
+        //active-color "@primary"
+        //active-color "#00000000"
+        // Color of the ring on inactive monitors.
+        //
+        // The focus ring only draws around the active window, so the only place
+        // where you can see its inactive-color is on other monitors.
+        //inactive-color "#505050"
+
+        // You can also use gradients. They take precedence over solid colors.
+        // Gradients are rendered the same as CSS linear-gradient(angle, from, to).
+        // The angle is the same as in linear-gradient, and is optional,
+        // defaulting to 180 (top-to-bottom gradient).
+        // You can use any CSS linear-gradient tool on the web to set these up.
+        // Changing the color space is also supported, check the wiki for more info.
+        //
+        // active-gradient from="#80c8ff" to="#c7ff7f" angle=45
+
+        // You can also color the gradient relative to the entire view
+        // of the workspace, rather than relative to just the window itself.
+        // To do that, set relative-to="workspace-view".
+        //
+         //inactive-gradient from="#505050" to="#808080" angle=45 relative-to="workspace-view"
+    }
+
+    // You can also add a border. It's similar to the focus ring, but always visible.
+    // 窗口边框
+    border {
+        // The settings are the same as for the focus ring.
+        // If you enable the border, you probably want to disable the focus ring.
+        off
+
+        width 4
+        active-color "#ffc87f"
+        inactive-color "#505050"
+
+        // Color of the border around windows that request your attention.
+        urgent-color "#9b0000"
+
+        // Gradients can use a few different interpolation color spaces.
+        // For example, this is a pastel rainbow gradient via in="oklch longer hue".
+        //
+        // active-gradient from="#e5989b" to="#ffb4a2" angle=45 relative-to="workspace-view" in="oklch longer hue"
+
+        // inactive-gradient from="#505050" to="#808080" angle=45 relative-to="workspace-view"
+    }
+
+    // You can enable drop shadows for windows.
+    // 阴影
+    shadow {
+        // Uncomment the next line to enable shadows.
+         on
+
+        // By default, the shadow draws only around its window, and not behind it.
+        // Uncomment this setting to make the shadow draw behind its window.
+        //
+        // Note that niri has no way of knowing about the CSD window corner
+        // radius. It has to assume that windows have square corners, leading to
+        // shadow artifacts inside the CSD rounded corners. This setting fixes
+        // those artifacts.
+        //
+        // However, instead you may want to set prefer-no-csd and/or
+        // geometry-corner-radius. Then, niri will know the corner radius and
+        // draw the shadow correctly, without having to draw it behind the
+        // window. These will also remove client-side shadows if the window
+        // draws any.
+        //
+         //draw-behind-window true
+
+        // You can change how shadows look. The values below are in logical
+        // pixels and match the CSS box-shadow properties.
+
+        // Softness controls the shadow blur radius.
+        softness 20
+
+        // Spread expands the shadow.
+        spread 2
+
+        // Offset moves the shadow relative to the window.
+        offset x=-4 y=-4
+
+        // You can also change the shadow color and opacity.
+        color "rgba(0, 0, 0, 0.7)"
+    }
+
+    // Struts shrink the area occupied by windows, similarly to layer-shell panels.
+    // You can think of them as a kind of outer gaps. They are set in logical pixels.
+    // Left and right struts will cause the next window to the side to always be visible.
+    // Top and bottom struts will simply add outer gaps in addition to the area occupied by
+    // layer-shell panels and regular gaps.
+    
+    //窗口距离屏幕边缘的距离
+    struts {
+        //left 64
+        // right 64
+        // top 64
+        // bottom 64
+    }
+}
+recent-windows {    
+    highlight {
+        active-color "#343b38"
+        urgent-color "#ffb4ab"
+    }
+}
+// -----------------------------------------------------------------
+// 快捷键绑定 (Mod = Super/Win 键)
+// -----------------------------------------------------------------
+binds {
+    // 基础操作
+    Mod+Return { spawn "alacritty"; }
+    Mod+D { spawn "fuzzel"; } // 推荐安装 fuzzel 作为启动器
+    Mod+Q { close-window; }
+    
+    // 浏览器快捷键
+    Mod+B { spawn "google-chrome-stable"; }
+    Mod+Shift+B { spawn "firefox"; }
+
+    // 焦点切换 (类似 Vim 方向)
+    Mod+H { focus-column-left; }
+    Mod+L { focus-column-right; }
+    Mod+J { focus-window-down; }
+    Mod+K { focus-window-up; }
+
+    // 移动窗口
+    Mod+Shift+H { move-column-left; }
+    Mod+Shift+L { move-column-right; }
+
+    // 调整窗口大小
+    Mod+R { switch-preset-column-width; }
+    Mod+F { maximize-column; }
+    Mod+Shift+F { fullscreen-window; }
+
+    // 工作区切换 (Workspace)
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+Shift+1 { move-column-to-workspace 1; }
+    Mod+Shift+2 { move-column-to-workspace 2; }
+
+    // 退出 Niri
+    Mod+Shift+E { quit; }
+    Mod+F1 { 
+        spawn "sh" "-c" "pkill waybar || waybar -c ~/.config/waybar/niri/config.jsonc -s ~/.config/waybar/niri/style.css"
+    }
+    Mod+F2 {spawn-sh "pkill fcitx5 || fcitx5";}
+
+    // 锁屏
+    Super+Alt+L hotkey-overlay-title="Lock the screen: swaylock" {spawn "swaylock";}
+// 音量控制 (调用 SwayOSD 客户端)
+    XF86AudioRaiseVolume  allow-when-locked=true { spawn "swayosd-client" "--output-volume" "raise"; }
+    XF86AudioLowerVolume  allow-when-locked=true { spawn "swayosd-client" "--output-volume" "lower"; }
+    XF86AudioMute         allow-when-locked=true { spawn "swayosd-client" "--output-volume" "mute-toggle"; }
+    XF86AudioMicMute      allow-when-locked=true { spawn "swayosd-client" "--input-volume" "mute-toggle"; }
+
+    // 亮度控制 (调用 SwayOSD 客户端)
+    XF86MonBrightnessUp   allow-when-locked=true { spawn "swayosd-client" "--brightness" "raise"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "swayosd-client" "--brightness" "lower"; }
+    // PrintScreen: 全屏截图并保存到剪贴板
+    Print { spawn "sh" "-c" "grim - | wl-copy"; }
+
+    // Super + PrintScreen: 选区截图并保存到剪贴板
+    Mod+Print { spawn "sh" "-c" "grim -g \"$(slurp)\" - | wl-copy"; }
+
+    // Super + Shift + S: 选区截图并手动选择保存位置
+    Mod+Shift+S { spawn "sh" "-c" "grim -g \"$(slurp)\" ~/Pictures/$(date +%Y-%m-%d_%H-%m-%s).png"; }
+}
+
+// -----------------------------------------------------------------
+// 启动自运行 (这里你可以放 Waybar, Swaybg 等)
+// -----------------------------------------------------------------
+spawn-at-startup "sh" "-c" "waybar -c ~/.config/waybar/niri/config.jsonc -s ~/.config/waybar/niri/style.css"
+spawn-at-startup "swww-daemon"
+// 启动 SwayOSD 后台服务
+spawn-at-startup "swayosd-server"
+spawn-at-startup "/home/cao/.config/niri/scripts/swayidle.sh"
+
+// 窗口美化
+// 全局窗口规则：圆角
+window-rule {
+    geometry-corner-radius 12
+    clip-to-geometry true
+
+    match is-active=false
+    opacity 0.8 // 不活跃时 80% 透明度，激活时自动回升到 1.0 (或 Alacritty 设定的透明度)
+}
+
+// 隐藏窗口标题栏
+prefer-no-csd
+
+=== 文件名: ./all.txt ===
+
