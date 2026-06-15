@@ -1,6 +1,5 @@
 * {
-  /* 主字体 + Symbols Nerd Font 兜底所有 nf-* 图标 + CJK 字体兜底中文 */
-  font-family: "JetBrainsMono Nerd Font", "Symbols Nerd Font", "Noto Sans CJK SC", sans-serif;
+  font-family: "JetBrainsMono Nerd Font";
   font-size: 12pt;
   font-weight: bold;
   border-radius: 0px;
@@ -122,5 +121,5 @@ tooltip label {
   color: #c0caf5;
 }
 #custom-cava-internal{
-  font-family: "Hack Nerd Font", "Symbols Nerd Font", monospace;
+  font-family: "Hack Nerd Font" ;
 }

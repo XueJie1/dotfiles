@@ -1,0 +1,122 @@
+* {
+  font-family: "JetBrainsMono Nerd Font", "Symbols Nerd Font", "Noto Sans CJK SC", sans-serif;
+  font-size: 11pt;
+  font-weight: bold;
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+window#waybar {
+  background-color: transparent;
+  color: #e0def4;
+}
+
+/* 所有模块：深色胶囊背景 */
+#workspaces,
+#window,
+#clock,
+#custom-cava,
+#pulseaudio,
+#cpu,
+#memory,
+#battery,
+#bluetooth,
+#network,
+#tray,
+#custom-powermenu {
+  background-color: rgba(20, 18, 28, 0.78);
+  border: 1px solid rgba(235, 188, 186, 0.35);
+  border-radius: 14px;
+  padding: 2px 12px;
+  margin: 2px 3px;
+  color: #e0def4;
+}
+
+/* Workspaces */
+#workspaces {
+  padding: 0 4px;
+}
+#workspaces button {
+  background: transparent;
+  color: #908caa;
+  padding: 0 6px;
+  margin: 2px 1px;
+  border-radius: 10px;
+}
+#workspaces button.active,
+#workspaces button.focused {
+  color: #f6c177;
+}
+#workspaces button.urgent {
+  color: #eb6f92;
+}
+#workspaces button:hover {
+  background-color: rgba(246, 193, 119, 0.18);
+  color: #f6c177;
+}
+
+/* 当前窗口标题 */
+#window {
+  color: #c4a7e7;
+  font-weight: normal;
+  padding: 2px 14px;
+}
+
+/* Cava */
+#custom-cava {
+  color: #c4a7e7;
+  padding: 0 14px;
+  letter-spacing: 1px;
+}
+
+/* 时钟 */
+#clock {
+  color: #e0def4;
+}
+
+/* 右侧状态模块颜色 */
+#pulseaudio { color: #9ccfd8; }
+#cpu        { color: #f6c177; }
+#memory     { color: #eb6f92; }
+#battery    { color: #a3be8c; }
+#battery.charging { color: #f6c177; }
+#battery.warning  { color: #f6c177; }
+#battery.critical { color: #eb6f92; }
+#bluetooth  { color: #89b4fa; }
+#network    { color: #c4a7e7; }
+#network.disconnected { color: #eb6f92; }
+
+/* 托盘 */
+#tray {
+  padding: 2px 10px;
+}
+#tray > .passive  { -gtk-icon-effect: dim; }
+#tray > .needs-attention {
+  -gtk-icon-effect: highlight;
+}
+
+/* 电源菜单 */
+#custom-powermenu {
+  color: #eb6f92;
+  padding: 0 12px;
+}
+
+/* 警告动画 */
+@keyframes blink_red {
+  to { background-color: #eb6f92; color: #1a1820; }
+}
+.warning, .critical, .urgent {
+  animation: blink_red 1s linear infinite alternate;
+}
+
+tooltip {
+  background: rgba(20, 18, 28, 0.95);
+  border: 1px solid rgba(235, 188, 186, 0.35);
+  border-radius: 10px;
+}
+tooltip label {
+  color: #e0def4;
+  padding: 4px 6px;
+}

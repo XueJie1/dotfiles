@@ -21,7 +21,7 @@
     "tray"
   ],
   "custom/launcher": {
-    "format": "",
+    "format": " ",
     "on-click": "~/.config/rofi/launcher.sh",
     "tooltip": false
   },
@@ -36,17 +36,17 @@
   "idle_inhibitor": {
     "format": "{icon}",
     "format-icons": {
-      "activated": "",
-      "deactivated": ""
+      "activated": "",
+      "deactivated": ""
     },
     "tooltip": false
   },
   "backlight": {
-    // "device": "intel_backlight", // 如果上面测试成功，这一行甚至可以注释掉或删掉，brightnessctl 会自动识别
-    "on-scroll-up": "brightnessctl set +5%",
-    "on-scroll-down": "brightnessctl set 5%-",
+    "device": "intel_backlight",
+    "on-scroll-up": "light -A 5",
+    "on-scroll-down": "light -U 5",
     "format": "{icon} {percent}%",
-    "format-icons": ["󰛩", "󰛪", "󰛨", "󰖨"]
+    "format-icons": ["🌙","🌓","🌔","🌕"]
   },
   "pulseaudio": {
     "scroll-step": 1,
@@ -71,7 +71,7 @@
     "format": "{icon} {capacity}%",
     "format-icons": ["", "", "", "", ""],
     "format-full": "{icon} {capacity}%",
-    "format-charging": " {capacity}%",
+    "format-charging": " {capacity}%",
     "tooltip": false
   },
   "clock": {
@@ -82,7 +82,7 @@
     "format": "{:%I:%M %p  %A %b %d}",
     "tooltip": true,
     /* "tooltip-format": "{:%A, %d %B %Y}\n<tt>{calendar}</tt>" */
-    "tooltip-format": "上午：高数\n下午：Ps\n晚上：Golang\n<tt>{calendar}</tt>",
+    "tooltip-format": "\n<tt>{calendar}</tt>",
   },
   "memory": {
     "interval": 1,
@@ -93,7 +93,7 @@
   },
   "cpu": {
     "interval": 1,
-    "format": "󰻠 {usage}%"
+    "format": " {usage}%"
   },
   "mpd": {
     "max-length": 25,
@@ -112,9 +112,9 @@
   "network": {
     "interval": 1,
     "format-wifi": " {essid}",
-    "format-ethernet": " {ifname} ({ipaddr})",
-    "format-linked": " {essid} (No IP)",
-    "format-disconnected": "󰌙 Disconnected",
+    "format-ethernet": "󰌗  {ifname} ({ipaddr})",
+    "format-linked": " {essid} (No IP)",
+    "format-disconnected": " Disconnected",
     "tooltip": false
   },
   "temperature": {

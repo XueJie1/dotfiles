@@ -1,6 +1,6 @@
 /* 自动生成：Material You wlogout 主题 */
 window {
-    background-color: alpha(#13140d, 0.85); /* 半透明背景 */
+    background-color: alpha(#0e1415, 0.85); /* 半透明背景 */
 }
 
 button {
@@ -8,19 +8,19 @@ button {
     background-position: center;
     background-size: 25%;
     border: none;
-    background-color: alpha(#45492f, 0.5); /* 按钮背景色 */
+    background-color: alpha(#324b4d, 0.5); /* 按钮背景色 */
     margin: 10px;
     transition: all 0.3s cubic-bezier(.55, 0.0, .28, 1.0);
     border-radius: 24px; /* 类 Material 3 的圆角 */
-    color: #e4e3d6;
+    color: #dee4e4;
 }
 
 button:focus,
 button:active,
 button:hover {
-    background-color: #c0ce7d; /* 悬停时变为主色 */
+    background-color: #81d4dc; /* 悬停时变为主色 */
     outline-style: none;
-    border: 2px solid #414b08;
+    border: 2px solid #004f55;
     border-radius: 40px; /* 悬停时更圆润 */
 }
 

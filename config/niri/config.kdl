@@ -232,7 +232,7 @@ recent-windows {
 // -----------------------------------------------------------------
 binds {
     // 基础操作
-    Mod+Return { spawn "alacritty"; }
+    Mod+Return { spawn "kitty"; }
     Mod+D { spawn "fuzzel"; } // 推荐安装 fuzzel 作为启动器
     Mod+Q { close-window; }
     // 开启文件管理
@@ -310,13 +310,11 @@ binds {
 // -----------------------------------------------------------------
 spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP" "XDG_SESSION_TYPE" "DISPLAY"
 spawn-at-startup "sh" "-c" "waybar -c ~/.config/waybar/niri/config.jsonc -s ~/.config/waybar/niri/style.css"
-spawn-at-startup "sh" "-c" "pgrep -x awww-daemon >/dev/null || awww-daemon & sleep 1; awww restore || true"
+spawn-at-startup "sh" "-c" "pgrep -x awww-daemon >/dev/null || awww-daemon & sleep 1; awww img /home/cao/Pictures/wallpapers/win11.jpg|| true"
 // 启动 SwayOSD 后台服务
 spawn-at-startup "swayosd-server"
 // spawn-at-startup "swayidle" "-w" "timeout" "300" "hyprlock" "before-sleep" "hyprlock"
 spawn-at-startup "xrdb" "-merge" "~/.Xresources"
-
-spawn-at-startup "sh" "-c" "awww-daemon & sleep 1 && awww img /home/cao/Pictures/wallpaper.jpg"
 
 // 窗口美化
 // 全局窗口规则：圆角
