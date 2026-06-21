@@ -1,6 +1,6 @@
 [Groups/0]
 # Group Name
-Name=All
+Name=Default
 # Layout
 Default Layout=us
 # Default Input Method
@@ -18,15 +18,9 @@ Name=pinyin
 # Layout
 Layout=
 
-[Groups/0/Items/2]
-# Name
-Name=wbx
-# Layout
-Layout=
-
 [Groups/1]
 # Group Name
-Name=Default
+Name=All
 # Layout
 Default Layout=us
 # Default Input Method
@@ -41,6 +35,12 @@ Layout=
 [Groups/1/Items/1]
 # Name
 Name=pinyin
+# Layout
+Layout=
+
+[Groups/1/Items/2]
+# Name
+Name=wbx
 # Layout
 Layout=
 
