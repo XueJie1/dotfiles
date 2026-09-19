@@ -1,0 +1,140 @@
+@import "dynamic_colors.css";
+
+* {
+  font-family: "JetBrainsMono Nerd Font", "Symbols Nerd Font", "Noto Sans CJK SC", sans-serif;
+  font-size: 11pt;
+  font-weight: bold;
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 让弹出菜单不受 * 通配符影响（恢复 check/radio 指示器尺寸与边框） */
+menu,
+menu menuitem {
+  min-height: 16px;
+}
+
+menu menuitem check,
+menu menuitem radio {
+  min-width: 16px;
+  min-height: 16px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  margin-right: 6px;
+}
+
+menu menuitem radio {
+  border-radius: 50%;
+}
+
+menu separator {
+  min-height: 1px;
+  background-color: alpha(currentColor, 0.2);
+  margin: 4px 0;
+}
+
+window#waybar {
+  background-color: transparent;
+  color: @on_surface;
+}
+
+#workspaces,
+#window,
+#clock,
+#custom-cava,
+#pulseaudio,
+#cpu,
+#memory,
+#battery,
+#bluetooth,
+#network,
+#tray,
+#custom-powermenu {
+  background-color: @surface_container;
+  border: 1px solid @outline;
+  border-radius: 14px;
+  padding: 2px 12px;
+  margin: 2px 3px;
+  color: @on_surface;
+}
+
+#workspaces {
+  padding: 0 4px;
+}
+#workspaces button {
+  background: transparent;
+  color: @on_surface_variant;
+  padding: 0 6px;
+  margin: 2px 1px;
+  border-radius: 10px;
+}
+#workspaces button.active,
+#workspaces button.focused {
+  color: @primary;
+}
+#workspaces button.urgent {
+  color: @error;
+}
+#workspaces button:hover {
+  background-color: alpha(@primary, 0.18);
+  color: @primary;
+}
+
+#window {
+  color: @secondary;
+  font-weight: normal;
+  padding: 2px 14px;
+}
+
+#custom-cava {
+  color: @secondary;
+  padding: 0 14px;
+  letter-spacing: 1px;
+}
+
+#clock {
+  color: @on_surface;
+}
+
+#pulseaudio { color: @tertiary; }
+#cpu        { color: @primary; }
+#memory     { color: @error; }
+#battery    { color: @secondary; }
+#battery.charging { color: @primary; }
+#battery.warning  { color: @primary; }
+#battery.critical { color: @error; }
+#bluetooth  { color: @primary; }
+#network    { color: @secondary; }
+#network.disconnected { color: @error; }
+
+#tray {
+  padding: 2px 10px;
+}
+#tray > .passive  { -gtk-icon-effect: dim; }
+#tray > .needs-attention {
+  -gtk-icon-effect: highlight;
+}
+
+#custom-powermenu {
+  color: @error;
+  padding: 0 12px;
+}
+
+@keyframes blink_red {
+  to { background-color: @error; color: @on_error; }
+}
+.warning, .critical, .urgent {
+  animation: blink_red 1s linear infinite alternate;
+}
+
+tooltip {
+  background: @surface_container_highest;
+  border: 1px solid @outline;
+  border-radius: 10px;
+}
+tooltip label {
+  color: @on_surface;
+  padding: 4px 6px;
+}

@@ -1,0 +1,15 @@
+// 自动生成的文件
+layout {
+    focus-ring {
+        // 使用 Material You 的 Primary 颜色
+        active-gradient from="{{colors.primary.default.hex}}" to="{{colors.secondary.default.hex}}" angle=135
+        urgent-color "{{colors.error.default.hex}}"
+    }
+}
+
+recent-windows {
+    highlight {
+        active-color "{{colors.primary_container.default.hex}}"
+        urgent-color "{{colors.error.default.hex}}"
+    }
+}

@@ -1,0 +1,8 @@
+// Niri 配置入口。
+//
+// 加载顺序与整理前一致。dynamic_colors.kdl 由 Matugen 自动生成，
+// 不要手动编辑；其模板位于 templates/colors.kdl。
+include "conf.d/animations.kdl"
+include "conf.d/window-rules.kdl"
+include "dynamic_colors.kdl"
+include "conf.d/session.kdl"
