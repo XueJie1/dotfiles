@@ -1,6 +1,6 @@
 {
     "label" : "lock",
-    "action" : "swaylock",
+    "action" : "hyprlock",
     "text" : "锁定",
     "keybind" : "l"
 }
@@ -12,7 +12,7 @@
 }
 {
     "label" : "logout",
-    "action" : "niri msg action quit",
+    "action" : "niri msg action quit --skip-confirmation",
     "text" : "注销",
     "keybind" : "e"
 }

@@ -19,11 +19,11 @@
     "pulseaudio",
     "cpu",
     "memory",
-    "custom/platform-profile",
     "battery",
     "bluetooth",
     "network",
     "tray",
+    "custom/platform-profile",
     "custom/powermenu"
   ],
 
@@ -136,7 +136,7 @@
   },
 
   "custom/powermenu": {
-    "format": "",
+    "format": "󰐥",
     "on-click": "~/.config/waybar/niri/scripts/power-menu.sh",
     "tooltip-format": "电源选项"
   }

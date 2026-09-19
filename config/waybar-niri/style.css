@@ -126,7 +126,25 @@ window#waybar {
 
 #custom-powermenu {
   color: @error;
-  padding: 0 12px;
+  font-size: 13pt;
+}
+
+/* 能效模式 + 电源：相邻模块拼成一个 MD3 胶囊。 */
+#custom-platform-profile {
+  border-radius: 14px 0 0 14px;
+  border-right: none;
+  margin-right: -3px;
+  padding-right: 9px;
+}
+#custom-powermenu {
+  border-radius: 0 14px 14px 0;
+  border-left: none;
+  margin-left: -3px;
+  padding: 0 12px 0 9px;
+}
+#custom-platform-profile:hover,
+#custom-powermenu:hover {
+  background-color: alpha(@primary, 0.18);
 }
 
 @keyframes blink_red {

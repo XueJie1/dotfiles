@@ -4,7 +4,7 @@
 
 - `config.jsonc`：Niri 会话当前加载的模块配置。
 - `style.css`：当前样式，导入 `dynamic_colors.css`。
-- `scripts/power-menu.sh`：Fuzzel 电源菜单（锁屏、挂起、注销、重启、关机）。
+- `scripts/power-menu.sh`：启动全屏 MD3 风格的 Wlogout 电源面板。
 - `scripts/platform-profile.sh`：显示并切换 ACPI 平台能效模式；优先使用
   Polkit 图形认证，失败时在 Kitty 中执行 `sudo tee`。
 - `templates/colors.css`：Matugen 颜色模板。
