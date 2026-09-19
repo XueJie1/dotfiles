@@ -2,14 +2,14 @@
 layout {
     focus-ring {
         // 使用 Material You 的 Primary 颜色
-        active-gradient from="#c0ce7d" to="#c5c9a8" angle=135
+        active-gradient from="#d3bcfd" to="#cdc2db" angle=135
         urgent-color "#ffb4ab"
     }
 }
 
 recent-windows {
     highlight {
-        active-color "#414b08"
+        active-color "#4f3d74"
         urgent-color "#ffb4ab"
     }
 }

@@ -1,207 +1,56 @@
-=== 文件名: ./scripts/swayidle.sh ===
-#!/usr/bin/env bash
-
-# 5分钟锁屏，10分钟熄屏，20分钟休眠
-swayidle -w \
-	timeout 300 'swaylock -f' \
-	timeout 600 'niri msg action power-off-monitors' \
-	resume 'niri msg action power-on-monitors'
-
-=== 文件名: ./animation.kdl ===
-// Animation settings.
-// The wiki explains how to configure individual animations:
-// https://yalter.github.io/niri/Configuration:-Animations
-// https://yalter.github.io/niri/Configuration:-Animations
-animations {
-    slowdown 0.9
-    workspace-switch {
-        spring damping-ratio=0.82 stiffness=523 epsilon=0.0001
-    }
-    horizontal-view-movement {
-        spring damping-ratio=0.86 stiffness=423 epsilon=0.0001
-
-    }
-}
-
-=== 文件名: ./colors.kdl ===
-layout{
-    focus-ring{
-        active-gradient from="#88d6bbcc" to="#a8cbe2cc" angle=135
-        urgent-color "#ffb4ab"
-
-        }
-}
-recent-windows {    
-    highlight {
-        active-color "#343b38"
-        urgent-color "#ffb4ab"
-    }
-}
-
-=== 文件名: ./rule.kdl ===
-// Window rules let you adjust behavior for individual windows.
-// Find more information on the wiki:
-// https://yalter.github.io/niri/Configuration:-Window-Rules
-
-// 放进overview里的壁纸程序
-layer-rule{
-    match namespace="hyprpaper"
-    match namespace="wallpaper"
-    match namespace="awww-daemon"
-    match namespace="swww-daemonoverview"
-     place-within-backdrop true
-}
-// 全局窗口规则
-window-rule {
-    // 圆角
-    geometry-corner-radius 8
-    // 去掉超出圆角的窗口内容
-    clip-to-geometry true
-    // 全局透明度
-    opacity 0.97
-    // 禁止边框画到背景里
-    draw-border-with-background false
-}
-// 以浮动模式打开imv（一个轻量化图片预览程序）且不自动聚焦
-window-rule {
-    match app-id="imv"
-    open-focused false
-    open-floating true
-    }
-// Open the Firefox picture-in-picture player as floating by default.
-// 以浮动模式打开
-window-rule {
-    // This app-id regular expression will work for both:
-    // - host Firefox (app-id is "firefox")
-    // - Flatpak Firefox (app-id is "org.mozilla.firefox")
-
-    match app-id="media_info"
-    match app-id="nm-connection-editor"
-    match app-id="niri-quick-switch"
-    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
-    match app-id="steam" title="Friends List"
-    match app-id="blueberry.py" title="蓝牙"
-    match app-id="blueman-manager"
-    match app-id="flameshot"
-    match app-id="com.github.hluk.copyq" 
-    match app-id="be.alexandervanhee.gradia"
-    match app-id="org.pulseaudio.pavucontrol" title="音量控制"
-    match app-id="org.gnome.clocks" title="时钟"
-    match app-id="fcitx" title="Fcitx5 Input Window"
-    match app-id="org.gnome.FileRoller"
-    match app-id="thunar" title="文件操作进度"
-    match app-id="waypaper"
-    match app-id="clipse-gui"
-    match title="群聊的聊天记录"
-    match title="聊天记录"
-    match title="日历"
-    match title="重命名"
-    match app-id="btrfs-assistant"
-    match app-id="markpix"
-    match title="Steam 设置" 
-    match title="另存为"
-    open-floating true
-}
-//快速终端和笔记
-window-rule {
-    match app-id="notebook"
-    match app-id="quickterminal"
-	open-floating true
-	default-floating-position x=20 y=20 relative-to="top"
-}
-window-rule{
-    match app-id="bluetui"
-	match app-id="clipse"
-    min-width 500 
-    min-height 600
-	open-floating true
-}
-    // waydroid调整
-window-rule {
-    match title="gsr ui"
-    match app-id="waydroid"
-    open-fullscreen true
-    open-floating true
-    focus-ring{
-        off
-    }
-    shadow {
-    off
-    }
-}
-// 取消图片预览、视频播放器之类的透明度，并且以浮动模式打开
-window-rule {
-    match title="图片查看器"
-    match title="画中画"
-    match title="图片和视频"
-    match title="视频播放器"
-    open-floating true
-    opacity 1.0
-}
-window-rule {
-    match app-id="mpv"
-    match app-id="celluloid"
-    opacity 1.0 
-}
-
-
-window-rule {
-    // This regular expression is intentionally made as specific as possible,
-    // since this is the default config, and we want no false positives.
-    // You can get away with just app-id="wezterm" if you want.
-    match app-id=r#"^org\.wezfurlong\.wezterm$"#
-    default-column-width {}
-}
-/-window-rule {
-    // This app-id regular expression will work for both:
-    // - host Firefox (app-id is "firefox")
-    // - Flatpak Firefox (app-id is "org.mozilla.firefox")
-    default-floating-position x=0 y=0 relative-to="bottom-right"
-    open-floating true
-}
-// window-rule {
-//     // This app-id regular expression will work for both:
-//     // - host Firefox (app-id is "firefox")
-//     // - Flatpak Firefox (app-id is "org.mozilla.firefox")
-
-//     match app-id="blueman-manager" title="蓝牙设备"
-//     match app-id="org.pulseaudio.pavucontrol" title="音量控制"
-//     default-floating-position x=0 y=0 relative-to="top-right"
-//     open-floating true
-// }
-// Example: block out two password managers from screen capture.
-// (This example rule is commented out with a "/-" in front.)
-/-window-rule {
-    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
-    match app-id=r#"^org\.gnome\.World\.Secrets$"#
-
-    block-out-from "screen-capture"
-
-    // Use this instead if you want them visible on third-party screenshot tools.
-    // block-out-from "screencast"
-}
-
-=== 文件名: ./config.kdl ===
-include "animation.kdl"
-include "rule.kdl"
-include "colors.kdl"
 // 显示器
 output "eDP-1" {
-   mode "1920x1080@165.008"
+   mode "960x540@165.008"
    scale 1.25
    position x=0 y=0
    focus-at-startup
+   // 仅在游戏等应用请求时启用 VRR，兼顾流畅度与桌面稳定性。
+   variable-refresh-rate on-demand=true
+}
+// HKC P41Q 的默认模式是 60Hz，显式选择其提供的 144Hz 模式。
+output "HKC OVERSEAS LIMITED P41Q 0000000000001" {
+    mode "2560x1440@143.999"
+    scale 1.25
+    position x=-2048 y=0
 }
 // 环境变量
 environment {
     LANG "zh_CN.UTF-8"
     LC_CTYPE "en_US.UTF-8"
-    DISPLAY ":1"
+    // DISPLAY ":1"
     // 强制让基于 QT 的程序（如 OBS）走 Wayland
     QT_QPA_PLATFORM "wayland;xcb"
-    #WLR_RENDERER "gles2"
+    // WLR_RENDERER "gles2"
+    XWAYLAND_NO_GLAMOR "1"
+    // GTK_IM_MODULE "simple"
+    XDG_CURRENT_DESKTOP "niri"
+    XDG_SESSION_TYPE "wayland"
+    GTK_USE_PORTAL "1"
+    http_proxy "http://127.0.0.1:7890"
+    https_proxy "http://127.0.0.1:7890"
+    all_proxy "127.0.0.1:7890"
+    ALL_PROXY "127.0.0.1:7890"
+    // XWayland Scaling
+    //GDK_DPI_SCALE "1.25"
+    QT_AUTO_SCREEN_SCALE_FACTOR "1"
+    //QT_SCALE_FACTOR "1.25"
+
+    MOZ_ENABLE_WAYLAND "1"
+    XCURSOR_PATH "/usr/share/icons:/home/USER/.local/share/icons"
+    XCURSOR_THEME "macOS"
+    XCURSOR_SIZE "24"
 }
 
+cursor {
+    xcursor-theme "macOS"
+    xcursor-size 24
+}
+
+
+layer-rule {
+    match namespace="^swaybg$"
+    place-within-backdrop true
+}
 
 // 鼠标
 // -----------------------------------------------------------------
@@ -228,7 +77,7 @@ input {
 // -----------------------------------------------------------------
 layout {
     //设置工作区背景颜色
-    //background-color "transparent"
+    background-color "transparent"
     // Set gaps around windows in logical pixels.
     // 窗口和窗口之间的间距
     gaps 12
@@ -261,6 +110,13 @@ layout {
     default-column-width { proportion 0.5; }
     // If you leave the brackets empty, the windows themselves will decide their initial width.
     // default-column-width {}
+
+    // By default focus ring and border are rendered as a solid background rectangle
+    // behind windows. That is, they will show up through semitransparent windows.
+    // This is because windows using client-side decorations can have an arbitrary shape.
+    //
+    // If you don't like that, you should uncomment `prefer-no-csd` below.
+    // Niri will draw focus ring and border *around* windows that agree to omit their
 
     // By default focus ring and border are rendered as a solid background rectangle
     // behind windows. That is, they will show up through semitransparent windows.
@@ -396,14 +252,18 @@ recent-windows {
 // -----------------------------------------------------------------
 binds {
     // 基础操作
-    Mod+Return { spawn "alacritty"; }
+    Mod+Return { spawn "kitty"; }
     Mod+D { spawn "fuzzel"; } // 推荐安装 fuzzel 作为启动器
     Mod+Q { close-window; }
-    
+    // 文件管理器:在 kitty 中启动 yazi
+    Mod+E { spawn "kitty" "-e" "yazi"; }
+    // 更换壁纸可视化
+    Mod+W {spawn "waypaper";}
     // 浏览器快捷键
     Mod+B { spawn "google-chrome-stable"; }
     Mod+Shift+B { spawn "firefox"; }
 
+    Mod+Y { toggle-window-floating; }
     // 焦点切换 (类似 Vim 方向)
     Mod+H { focus-column-left; }
     Mod+L { focus-column-right; }
@@ -422,8 +282,22 @@ binds {
     // 工作区切换 (Workspace)
     Mod+1 { focus-workspace 1; }
     Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
     Mod+Shift+1 { move-column-to-workspace 1; }
     Mod+Shift+2 { move-column-to-workspace 2; }
+    Mod+Shift+3 { move-column-to-workspace 3; }
+    Mod+Shift+4 { move-column-to-workspace 4; }
+    Mod+Shift+5 { move-column-to-workspace 5; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
 
     // 退出 Niri
     Mod+Shift+E { quit; }
@@ -433,34 +307,55 @@ binds {
     Mod+F2 {spawn-sh "pkill fcitx5 || fcitx5";}
 
     // 锁屏
-    Super+Alt+L hotkey-overlay-title="Lock the screen: swaylock" {spawn "swaylock";}
+    Super+Alt+L hotkey-overlay-title="Lock the screen: swaylock" {spawn "systemctl" "suspend";}
 // 音量控制 (调用 SwayOSD 客户端)
     XF86AudioRaiseVolume  allow-when-locked=true { spawn "swayosd-client" "--output-volume" "raise"; }
     XF86AudioLowerVolume  allow-when-locked=true { spawn "swayosd-client" "--output-volume" "lower"; }
     XF86AudioMute         allow-when-locked=true { spawn "swayosd-client" "--output-volume" "mute-toggle"; }
     XF86AudioMicMute      allow-when-locked=true { spawn "swayosd-client" "--input-volume" "mute-toggle"; }
 
-    // 亮度控制 (调用 SwayOSD 客户端)
+    // 屏幕亮度控制
     XF86MonBrightnessUp   allow-when-locked=true { spawn "swayosd-client" "--brightness" "raise"; }
     XF86MonBrightnessDown allow-when-locked=true { spawn "swayosd-client" "--brightness" "lower"; }
-    // PrintScreen: 全屏截图并保存到剪贴板
+
+    // 播放/暂停
+    XF86AudioPlay { spawn "playerctl" "play-pause"; }
+    
+    // 下一首
+    XF86AudioNext { spawn "playerctl" "next"; }
+    
+    // 上一首
+    XF86AudioPrev { spawn "playerctl" "previous"; }
     Print { spawn "sh" "-c" "grim - | wl-copy"; }
 
     // Super + PrintScreen: 选区截图并保存到剪贴板
     Mod+Print { spawn "sh" "-c" "grim -g \"$(slurp)\" - | wl-copy"; }
 
-    // Super + Shift + S: 选区截图并手动选择保存位置
-    Mod+Shift+S { spawn "sh" "-c" "grim -g \"$(slurp)\" ~/Pictures/$(date +%Y-%m-%d_%H-%m-%s).png"; }
+    // Super + Shift + S: 选区截图，保存到 ScreenShots 文件夹并复制到剪贴板
+    Mod+Shift+S { 
+        spawn "sh" "-c" "mkdir -p ~/Pictures/ScreenShots && grim -g \"$(slurp)\" - | tee ~/Pictures/ScreenShots/$(date +%Y-%m-%d_%H-%M-%S).png | wl-copy"
+    }
 }
 
 // -----------------------------------------------------------------
 // 启动自运行 (这里你可以放 Waybar, Swaybg 等)
 // -----------------------------------------------------------------
+spawn-at-startup "/home/USER/.local/bin/sync-gtk-cursor" "macOS" "24"
+spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP" "XDG_SESSION_TYPE" "DISPLAY"
+spawn-at-startup "/usr/lib/polkit-kde-authentication-agent-1"
 spawn-at-startup "sh" "-c" "waybar -c ~/.config/waybar/niri/config.jsonc -s ~/.config/waybar/niri/style.css"
-spawn-at-startup "swww-daemon"
+// 静态壁纸已停用，避免 awww 与 mpvpaper 同时占用 background 层
+// spawn-at-startup "sh" "-c" "pgrep -x awww-daemon >/dev/null || awww-daemon & sleep 1; awww img /home/USER/Pictures/wallpapers/In the Court of the Crimson King.jpg || true"
+// 视频壁纸：mpvpaper-matugen.sh 是 mpvpaper 包装器，启动前用 ffmpeg 抽首帧触发 matugen 配色更新
+spawn-at-startup "/home/USER/.config/niri/scripts/mpvpaper-matugen.sh" "eDP-1" "/path/to/wallpaper.mp4" "-o" "no-config no-audio loop-file hwdec=vaapi vo=gpu-next gpu-api=opengl video-sync=display-resample"
+
 // 启动 SwayOSD 后台服务
 spawn-at-startup "swayosd-server"
-spawn-at-startup "/home/cao/.config/niri/scripts/swayidle.sh"
+spawn-at-startup "fcitx5" "-d"
+// spawn-at-startup "clash-party" // 已禁用 Mihomo Party 自启动
+// spawn-at-startup "swayidle" "-w" "timeout" "300" "hyprlock" "before-sleep" "hyprlock"
+// Keep X11/XWayland cursors consistent with Niri.
+spawn-at-startup "xrdb" "-merge" "/home/USER/.config/niri/xresources"
 
 // 窗口美化
 // 全局窗口规则：圆角
@@ -472,8 +367,79 @@ window-rule {
     opacity 0.8 // 不活跃时 80% 透明度，激活时自动回升到 1.0 (或 Alacritty 设定的透明度)
 }
 
+
+window-rule {
+    match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
+    default-floating-position x=10 y=10 relative-to="bottom-right"
+}
+
+window-rule {
+    // 1. 匹配 Waylyrics
+    match app-id="waylyrics"
+
+    // 2. 初始设置为悬浮，且启动时不夺取焦点
+    open-floating true
+    open-focused false
+
+    // 3. 设置悬浮位置 (基于你提供的列表语法)
+    // 逻辑坐标参考：1920/1.25=1536, 1080/1.25=864
+    default-floating-position x=500 y=800 relative-to="top-left"
+
+    // 4. 关于“点击穿透”：
+    // 在你提供的属性清单中没有看到 click-through。
+    // 如果你更新 niri 到 v0.1.10+，可以直接在这里添加一行：
+    // click-through true
+    // 在当前版本下，你可以尝试将不透明度调低，使其视觉干扰降到最低：
+    opacity 0.8
+
+    // 5. 装饰微调：去掉焦点环和圆角
+    focus-ring { off; }
+    border { off; }
+    geometry-corner-radius 12
+    
+    // 防止被录屏软件捕捉（可选）
+    // block-out-from "screencast"
+}
 // 隐藏窗口标题栏
 prefer-no-csd
 
-=== 文件名: ./all.txt ===
 
+debug {
+  disable-cursor-plane
+  // 内屏连接 Intel 核显；忽略 NVIDIA 可让独显在空闲时进入运行时休眠。
+  // 外接到 NVIDIA 接口的显示器需要先注释此行并重新登录。
+  ignore-drm-device "/dev/dri/renderD129"
+}
+
+
+window-rule {
+    // 1. 匹配你的桌宠程序（支持正则表达式，将下面的 app-id 替换为你第一步查到的值）
+    match app-id="live2d-cyrene"
+
+    // 2. 强制以浮动模式打开，不参与平铺
+    open-floating true
+
+    // 3. 去除 Niri 自带的窗口边框和聚焦环
+    draw-border-with-background false
+    
+    // 4. 可选：裁剪到几何形状并去除客户端阴影（保持纯净外观）
+    clip-to-geometry true
+
+    // 5. 可选：限制桌宠的默认打开大小（根据你的桌宠素材调整）
+    default-column-width { fixed 200; }
+    default-window-height { fixed 200; }
+}
+
+
+// 自动浮动 Chromium 的“画中画”小窗口
+window-rule {
+    match app-id="^(org\\.chromium\\.Chromium|chromium)$" title="^画中画$"
+    open-floating true
+    default-floating-position x=32 y=32 relative-to="bottom-right" // 默认生成在右下角
+}
+
+// 自动浮动 Chromium 的其他独立弹出小窗
+window-rule {
+    match app-id="^(org\\.chromium\\.Chromium|chromium)$" title="^特定小窗标题$"
+    open-floating true
+}
