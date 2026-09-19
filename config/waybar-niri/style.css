@@ -47,12 +47,11 @@ window#waybar {
 #pulseaudio,
 #cpu,
 #memory,
-#custom-platform-profile,
 #battery,
 #bluetooth,
 #network,
 #tray,
-#custom-powermenu {
+#power-controls {
   background-color: @surface_container;
   border: 1px solid @outline;
   border-radius: 14px;
@@ -129,21 +128,26 @@ window#waybar {
   font-size: 13pt;
 }
 
-/* 能效模式 + 电源：相邻模块拼成一个 MD3 胶囊。 */
-#custom-platform-profile {
-  border-radius: 14px 0 0 14px;
-  border-right: none;
-  margin-right: -3px;
-  padding-right: 9px;
+/* 外层 group 负责唯一的 MD3 胶囊；内部模块不再各画一个边框。 */
+#power-controls {
+  padding: 0;
 }
-#custom-powermenu {
-  border-radius: 0 14px 14px 0;
-  border-left: none;
-  margin-left: -3px;
-  padding: 0 12px 0 9px;
+#power-controls #custom-platform-profile,
+#power-controls #custom-powermenu {
+  background-color: transparent;
+  border: none;
+  margin: 0;
 }
-#custom-platform-profile:hover,
-#custom-powermenu:hover {
+#power-controls #custom-platform-profile {
+  border-radius: 13px 0 0 13px;
+  padding: 2px 9px 2px 12px;
+}
+#power-controls #custom-powermenu {
+  border-radius: 0 13px 13px 0;
+  padding: 2px 12px 2px 9px;
+}
+#power-controls #custom-platform-profile:hover,
+#power-controls #custom-powermenu:hover {
   background-color: alpha(@primary, 0.18);
 }
 

@@ -23,9 +23,16 @@
     "bluetooth",
     "network",
     "tray",
-    "custom/platform-profile",
-    "custom/powermenu"
+    "group/power-controls"
   ],
+
+  "group/power-controls": {
+    "orientation": "horizontal",
+    "modules": [
+      "custom/platform-profile",
+      "custom/powermenu"
+    ]
+  },
 
   "niri/workspaces": {
     "format": "{index}",
