@@ -1,0 +1,6 @@
+! X11/XWayland cursor resources for the Hyprland session.
+Xcursor.theme: Bibata-Modern-Classic
+Xcursor.size: 24
+
+! 1.25x UI/font scaling (96 * 1.25)
+Xft.dpi: 120

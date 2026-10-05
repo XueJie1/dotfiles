@@ -1,0 +1,40 @@
+#!/bin/sh
+set -eu
+. "$HOME/.config/sway/locale.sh"
+
+# Use only Intel so wlroots never opens the NVIDIA DRM backend.
+intel_card=$(readlink -f /dev/dri/by-path/pci-0000:00:02.0-card)
+if [ ! -c "$intel_card" ]; then
+    echo 'Sway Intel: Intel DRM device is missing.' >&2
+    exit 1
+fi
+export WLR_DRM_DEVICES="$intel_card"
+export WLR_BACKENDS=drm,libinput
+# A login session must start on DRM, never nest inside the greeter's display.
+unset DISPLAY WAYLAND_DISPLAY WAYLAND_SOCKET
+export WLR_RENDER_DRM_DEVICE=$(readlink -f /dev/dri/by-path/pci-0000:00:02.0-render)
+export WLR_RENDERER=gles2
+export DRI_PRIME=0
+export __GLX_VENDOR_LIBRARY_NAME=mesa
+unset __NV_PRIME_RENDER_OFFLOAD __VK_LAYER_NV_optimus GBM_BACKEND XWAYLAND_NO_GLAMOR
+export XDG_CURRENT_DESKTOP=sway
+export XDG_SESSION_DESKTOP=sway
+export XDG_SESSION_TYPE=wayland
+export ELECTRON_OZONE_PLATFORM_HINT=x11
+# $LIB is expanded by the ELF loader (lib/lib32), not by the shell.
+# Keep the token literal for automatic 32/64-bit selection.
+cursor_bridge="$HOME/.local/lib/desktop-cursor/"'$LIB/cursor-bridge.so'
+export LD_PRELOAD="$cursor_bridge${LD_PRELOAD:+:$LD_PRELOAD}"
+export MOZ_ENABLE_WAYLAND=1
+export QT_QPA_PLATFORM='wayland;xcb'
+# WLR_BACKENDS is explicitly DRM above; DISPLAY cannot select a nested backend.
+display_number=1
+while [ -e "/tmp/.X11-unix/X$display_number" ] || [ -e "/tmp/.X$display_number-lock" ]; do
+    display_number=$((display_number + 1))
+    [ "$display_number" -lt 100 ] || exit 1
+done
+export DISPLAY=:$display_number
+unset XAUTHORITY
+export _JAVA_AWT_WM_NONREPARENTING=1
+mkdir -p "$HOME/.local/state/sway"
+exec /usr/bin/sway --config "$HOME/.config/sway/config-intel" "$@" >> "$HOME/.local/state/sway/intel.log" 2>&1

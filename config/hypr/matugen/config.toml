@@ -1,0 +1,24 @@
+[config]
+version_check = false
+
+# Hyprland/Quickshell-only outputs. Shared GTK, Qt, Fuzzel, Waybar and Niri
+# targets are intentionally excluded to keep desktop sessions isolated.
+[templates.m3colors]
+input_path = '~/.config/hypr/matugen/templates/colors.json'
+output_path = '~/.local/state/quickshell/user/generated/colors.json'
+
+[templates.hyprland]
+input_path = '~/.config/hypr/matugen/templates/hyprland/colors.lua'
+output_path = '~/.config/hypr/hyprland/colors.lua'
+
+[templates.hyprlock]
+input_path = '~/.config/hypr/matugen/templates/hyprland/hyprlock-colors.conf'
+output_path = '~/.config/hypr/hyprlock/colors.conf'
+
+[templates.kde_colors]
+input_path = '~/.config/hypr/matugen/templates/kde/color.txt'
+output_path = '~/.local/state/quickshell/user/generated/color.txt'
+
+[templates.wallpaper]
+input_path = '~/.config/hypr/matugen/templates/wallpaper.txt'
+output_path = '~/.local/state/quickshell/user/generated/wallpaper/path.txt'

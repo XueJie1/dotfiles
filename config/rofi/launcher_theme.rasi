@@ -26,14 +26,14 @@ prompt {
   enabled:                    true;
   padding:                    0.30% 1% 0% -0.5%;
   background-color:           @al;
-  text-color:                 #81A1C1;
+  text-color:                 @tertiary;
   font:                       "FantasqueSansMono Nerd Font 16";
 }
 
 entry {
   background-color:           @al;
-  text-color:                 #87CEFA;
-  placeholder-color:          @bg;
+  text-color:                 @primary;
+  placeholder-color:          @on-surface-variant;
   expand:                     true;
   horizontal-align:           0;
   placeholder:                "Search";
@@ -76,7 +76,7 @@ mainbox {
 
 element {
   background-color:           @al;
-  text-color:                 #ffffff;
+  text-color:                 @on-surface;
   orientation:                horizontal;
   border-radius:              0%;
   padding:                    1% 0.5% 1% 0.5%;
@@ -87,7 +87,7 @@ element-icon {
   text-color:                 inherit;
   horizontal-align:           0.5;
   vertical-align:             0.5;
-  size:                       32px;
+  size:                       24px;
   border:                     0px;
 }
 

@@ -1,0 +1,11 @@
+[Unit]
+Description=Niri video wallpaper
+Requisite=niri.service
+After=niri.service
+PartOf=niri.service graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/home/cao/.config/niri/scripts/mpvpaper-matugen.sh eDP-1 /home/cao/Videos/下载视频/Elysia_1080p60.mp4 -o "no-config no-audio loop-file hwdec=vaapi vo=gpu-next gpu-api=opengl video-sync=display-resample"
+KillMode=control-group
+TimeoutStopSec=3

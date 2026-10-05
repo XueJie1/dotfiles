@@ -27,7 +27,10 @@ icons[cancel]="󰜺"
 
 declare -A actions
 actions[lockscreen]="sh $HOME/.config/sway/swaylock.sh"
-actions[logout]="loginctl terminate-session ${XDG_SESSION_ID-}"
+case "${XDG_CURRENT_DESKTOP-}" in
+    *sway*) actions[logout]="swaymsg exit" ;;
+    *) actions[logout]="loginctl terminate-session ${XDG_SESSION_ID-}" ;;
+esac
 actions[suspend]="systemctl suspend"
 actions[hibernate]="systemctl hibernate"
 actions[reboot]="systemctl reboot"

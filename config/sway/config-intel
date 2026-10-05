@@ -1,0 +1,4 @@
+# Intel DRM session with the independently verified sharp X11 backend.
+include ~/.config/sway/config
+xwayland disabled
+exec ~/.config/sway/start-xwayland-satellite.sh

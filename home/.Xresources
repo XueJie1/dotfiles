@@ -1,0 +1,8 @@
+! Cursor resources are session-specific:
+! Hyprland: ~/.config/hypr/xresources
+! Niri:     ~/.config/niri/xresources
+
+! 1.25x UI/font scaling (96 * 1.25)
+Xft.dpi: 120
+Xcursor.theme: fireflys-pixel-cursors
+Xcursor.size: 32

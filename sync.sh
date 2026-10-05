@@ -1,7 +1,8 @@
 #!/bin/bash
 # 自动同步脚本
+set -euo pipefail
 
-DOTFILES_DIR="$HOME/dotfiles"
+DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$DOTFILES_DIR" || exit 1
 
 # 检查是否有变动

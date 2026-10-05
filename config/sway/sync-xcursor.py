@@ -1,0 +1,1 @@
+/home/cao/.local/bin/desktop-session

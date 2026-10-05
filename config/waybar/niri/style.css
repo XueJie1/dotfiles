@@ -1,3 +1,5 @@
+@import "dynamic_colors.css";
+
 * {
   font-family: "JetBrainsMono Nerd Font", "Symbols Nerd Font", "Noto Sans CJK SC", sans-serif;
   font-size: 11pt;
@@ -8,12 +10,36 @@
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-window#waybar {
-  background-color: transparent;
-  color: #e0def4;
+/* 让弹出菜单不受 * 通配符影响（恢复 check/radio 指示器尺寸与边框） */
+menu,
+menu menuitem {
+  min-height: 16px;
 }
 
-/* 所有模块：深色胶囊背景 */
+menu menuitem check,
+menu menuitem radio {
+  min-width: 16px;
+  min-height: 16px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  margin-right: 6px;
+}
+
+menu menuitem radio {
+  border-radius: 50%;
+}
+
+menu separator {
+  min-height: 1px;
+  background-color: alpha(currentColor, 0.2);
+  margin: 4px 0;
+}
+
+window#waybar {
+  background-color: transparent;
+  color: @on_surface;
+}
+
 #workspaces,
 #window,
 #clock,
@@ -25,70 +51,70 @@ window#waybar {
 #bluetooth,
 #network,
 #tray,
-#custom-powermenu {
-  background-color: rgba(20, 18, 28, 0.78);
-  border: 1px solid rgba(235, 188, 186, 0.35);
+#power-controls {
+  background-color: @surface_container;
+  border: 1px solid @outline;
   border-radius: 14px;
   padding: 2px 12px;
   margin: 2px 3px;
-  color: #e0def4;
+  color: @on_surface;
 }
 
-/* Workspaces */
 #workspaces {
   padding: 0 4px;
 }
 #workspaces button {
   background: transparent;
-  color: #908caa;
+  color: @on_surface_variant;
   padding: 0 6px;
   margin: 2px 1px;
   border-radius: 10px;
 }
 #workspaces button.active,
 #workspaces button.focused {
-  color: #f6c177;
+  color: @primary;
 }
 #workspaces button.urgent {
-  color: #eb6f92;
+  color: @error;
 }
 #workspaces button:hover {
-  background-color: rgba(246, 193, 119, 0.18);
-  color: #f6c177;
+  background-color: alpha(@primary, 0.18);
+  color: @primary;
 }
 
-/* 当前窗口标题 */
 #window {
-  color: #c4a7e7;
+  color: @secondary;
   font-weight: normal;
   padding: 2px 14px;
 }
 
-/* Cava */
 #custom-cava {
-  color: #c4a7e7;
+  color: @secondary;
   padding: 0 14px;
   letter-spacing: 1px;
 }
 
-/* 时钟 */
 #clock {
-  color: #e0def4;
+  color: @on_surface;
 }
 
-/* 右侧状态模块颜色 */
-#pulseaudio { color: #9ccfd8; }
-#cpu        { color: #f6c177; }
-#memory     { color: #eb6f92; }
-#battery    { color: #a3be8c; }
-#battery.charging { color: #f6c177; }
-#battery.warning  { color: #f6c177; }
-#battery.critical { color: #eb6f92; }
-#bluetooth  { color: #89b4fa; }
-#network    { color: #c4a7e7; }
-#network.disconnected { color: #eb6f92; }
+#pulseaudio { color: @tertiary; }
+#cpu        { color: @primary; }
+#memory     { color: @error; }
+#custom-platform-profile { color: @tertiary; }
+#custom-platform-profile.low-power,
+#custom-platform-profile.quiet { color: @secondary; }
+#custom-platform-profile.balanced { color: @primary; }
+#custom-platform-profile.balanced-performance,
+#custom-platform-profile.performance { color: @error; }
+#battery    { color: @secondary; }
+#battery.charging { color: @primary; }
+#battery.warning  { color: @primary; }
+#battery.critical { color: @error; }
+#bluetooth  { color: @primary; }
+#network    { color: @secondary; }
+#network.disconnected { color: @error; }
 
-/* 托盘 */
 #tray {
   padding: 2px 10px;
 }
@@ -97,26 +123,47 @@ window#waybar {
   -gtk-icon-effect: highlight;
 }
 
-/* 电源菜单 */
 #custom-powermenu {
-  color: #eb6f92;
-  padding: 0 12px;
+  color: @error;
+  font-size: 13pt;
 }
 
-/* 警告动画 */
+/* 外层 group 负责唯一的 MD3 胶囊；内部模块不再各画一个边框。 */
+#power-controls {
+  padding: 0;
+}
+#power-controls #custom-platform-profile,
+#power-controls #custom-powermenu {
+  background-color: transparent;
+  border: none;
+  margin: 0;
+}
+#power-controls #custom-platform-profile {
+  border-radius: 13px 0 0 13px;
+  padding: 2px 9px 2px 12px;
+}
+#power-controls #custom-powermenu {
+  border-radius: 0 13px 13px 0;
+  padding: 2px 12px 2px 9px;
+}
+#power-controls #custom-platform-profile:hover,
+#power-controls #custom-powermenu:hover {
+  background-color: alpha(@primary, 0.18);
+}
+
 @keyframes blink_red {
-  to { background-color: #eb6f92; color: #1a1820; }
+  to { background-color: @error; color: @on_error; }
 }
 .warning, .critical, .urgent {
   animation: blink_red 1s linear infinite alternate;
 }
 
 tooltip {
-  background: rgba(20, 18, 28, 0.95);
-  border: 1px solid rgba(235, 188, 186, 0.35);
+  background: @surface_container_highest;
+  border: 1px solid @outline;
   border-radius: 10px;
 }
 tooltip label {
-  color: #e0def4;
+  color: @on_surface;
   padding: 4px 6px;
 }

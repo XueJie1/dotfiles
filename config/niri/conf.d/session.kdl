@@ -1,6 +1,6 @@
 // 显示器
 output "eDP-1" {
-   mode "960x540@165.008"
+   mode "1920x1080@165.008"
    scale 1.25
    position x=0 y=0
    focus-at-startup
@@ -24,6 +24,7 @@ environment {
     XWAYLAND_NO_GLAMOR "1"
     // GTK_IM_MODULE "simple"
     XDG_CURRENT_DESKTOP "niri"
+    ELECTRON_OZONE_PLATFORM_HINT "wayland"
     XDG_SESSION_TYPE "wayland"
     GTK_USE_PORTAL "1"
     http_proxy "http://127.0.0.1:7890"
@@ -36,7 +37,7 @@ environment {
     //QT_SCALE_FACTOR "1.25"
 
     MOZ_ENABLE_WAYLAND "1"
-    XCURSOR_PATH "/usr/share/icons:/home/USER/.local/share/icons"
+    XCURSOR_PATH "/usr/share/icons:/home/cao/.local/share/icons"
     XCURSOR_THEME "macOS"
     XCURSOR_SIZE "24"
 }
@@ -340,14 +341,15 @@ binds {
 // -----------------------------------------------------------------
 // 启动自运行 (这里你可以放 Waybar, Swaybg 等)
 // -----------------------------------------------------------------
-spawn-at-startup "/home/USER/.local/bin/sync-gtk-cursor" "macOS" "24"
+spawn-at-startup "/home/cao/.local/bin/sync-desktop-x11" "niri"
 spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP" "XDG_SESSION_TYPE" "DISPLAY"
 spawn-at-startup "/usr/lib/polkit-kde-authentication-agent-1"
 spawn-at-startup "sh" "-c" "waybar -c ~/.config/waybar/niri/config.jsonc -s ~/.config/waybar/niri/style.css"
 // 静态壁纸已停用，避免 awww 与 mpvpaper 同时占用 background 层
-// spawn-at-startup "sh" "-c" "pgrep -x awww-daemon >/dev/null || awww-daemon & sleep 1; awww img /home/USER/Pictures/wallpapers/In the Court of the Crimson King.jpg || true"
+// spawn-at-startup "sh" "-c" "pgrep -x awww-daemon >/dev/null || awww-daemon & sleep 1; awww img /home/cao/Pictures/wallpapers/In the Court of the Crimson King.jpg || true"
 // 视频壁纸：mpvpaper-matugen.sh 是 mpvpaper 包装器，启动前用 ffmpeg 抽首帧触发 matugen 配色更新
-spawn-at-startup "/home/USER/.config/niri/scripts/mpvpaper-matugen.sh" "eDP-1" "/path/to/wallpaper.mp4" "-o" "no-config no-audio loop-file hwdec=vaapi vo=gpu-next gpu-api=opengl video-sync=display-resample"
+// 由 systemd 随 niri 退出清理，防止残留 mpvpaper 占住 NVIDIA DRM 设备。
+spawn-at-startup "systemctl" "--user" "start" "niri-wallpaper.service"
 
 // 启动 SwayOSD 后台服务
 spawn-at-startup "swayosd-server"
@@ -355,7 +357,7 @@ spawn-at-startup "fcitx5" "-d"
 // spawn-at-startup "clash-party" // 已禁用 Mihomo Party 自启动
 // spawn-at-startup "swayidle" "-w" "timeout" "300" "hyprlock" "before-sleep" "hyprlock"
 // Keep X11/XWayland cursors consistent with Niri.
-spawn-at-startup "xrdb" "-merge" "/home/USER/.config/niri/xresources"
+// X11 resources are updated and loaded by sync-desktop-x11 above.
 
 // 窗口美化
 // 全局窗口规则：圆角
@@ -406,9 +408,6 @@ prefer-no-csd
 
 debug {
   disable-cursor-plane
-  // 内屏连接 Intel 核显；忽略 NVIDIA 可让独显在空闲时进入运行时休眠。
-  // 外接到 NVIDIA 接口的显示器需要先注释此行并重新登录。
-  ignore-drm-device "/dev/dri/renderD129"
 }
 
 

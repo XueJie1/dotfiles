@@ -1,0 +1,257 @@
+#!/usr/bin/python3
+"""Desktop cursor sync, application launch policy and cursor size expansion."""
+import argparse
+import configparser
+import fcntl
+import json
+import math
+import shutil
+import struct
+import sys
+import os
+from pathlib import Path
+import re
+import subprocess
+import tempfile
+import time
+
+
+def write(path, content):
+    # Do not notify GTK/file watchers when the synchronized settings are unchanged.
+    expected = content if isinstance(content, bytes) else content.encode()
+    if path.is_file() and path.read_bytes() == expected:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(mode="wb" if isinstance(content, bytes) else "w", dir=path.parent, delete=False) as f:
+        f.write(content)
+        temporary = f.name
+    os.replace(temporary, path)
+
+
+def run(args, env=None, quiet=False):
+    try:
+        return subprocess.run(args, env=env, timeout=5, check=False,
+                              stdout=subprocess.DEVNULL,
+                              stderr=subprocess.DEVNULL if quiet else None).returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
+home = Path.home()
+config = home / ".config"
+name = Path(sys.argv[0]).name
+applications = {"google-chrome-stable", "chatgpt", "windterm", "steam", "code", "code-oss", "waypaper"}
+if name in applications or name == "sway-x11":
+    command = sys.argv[1:] if name == "sway-x11" else ["/usr/bin/" + ("code-oss" if name == "code" else name), *sys.argv[1:]]
+    if not command:
+        sys.exit("Usage: sway-x11 PROGRAM [ARGUMENTS...]")
+    if "sway" in os.environ.get("XDG_CURRENT_DESKTOP", "").lower():
+        if name == "waypaper":
+            if len(command) == 1:
+                os.execv(str(config / "sway/wallpaper.py"), ["wallpaper.py", "gui"])
+            os.environ["XDG_CONFIG_HOME"] = str(config / "sway/waypaper-config")
+            command[1:1] = ["--config-file", str(config / "sway/waypaper.ini")]
+        else:
+            try:
+                snapshot = json.loads((config / "desktop-session/current.json").read_text())
+                if snapshot["desktop"] == "sway" and int(snapshot["x11_size"]) > 0:
+                    os.environ.update(XCURSOR_THEME=snapshot["theme"], XCURSOR_SIZE=str(snapshot["x11_size"]), DISPLAY=snapshot["display"])
+            except (OSError, ValueError, KeyError, TypeError) as error:
+                print(f"desktop-session: retaining session environment: {error}", file=sys.stderr)
+            if name == "windterm":
+                os.environ["QT_QPA_PLATFORM"] = "xcb"
+            if name in {"google-chrome-stable", "code", "code-oss"}:
+                os.environ["ELECTRON_OZONE_PLATFORM_HINT"] = "x11"
+                # Read the synchronized scale instead of keeping another hard-coded 1.25.
+                flags = config / ("chrome-flags.conf" if name == "google-chrome-stable" else "code-flags.conf")
+                lines = flags.read_text().splitlines() if flags.exists() else []
+                scale_flag = next((line for line in lines if line.startswith("--force-device-scale-factor=")), "--force-device-scale-factor=1.25")
+                command[1:1] = ["--ozone-platform=x11", scale_flag]
+    os.execvp(command[0], command)
+
+
+def expand_theme(theme):
+    """Add the macOS size set to a cursor theme, preserving animation and aliases."""
+    roots = [home / ".icons", home / ".local/share/icons", Path("/usr/share/icons")]
+    root = next((p / theme for p in roots if (p / theme / "cursors").is_dir()), None)
+    if not root:
+        sys.exit(f"Cursor theme not found: {theme}")
+    backup = home / ".local/state/desktop-session" / (theme + "-before-expand-" + str(time.time_ns()))
+    shutil.copytree(root, backup, symlinks=True)
+    sizes = (16, 20, 22, 24, 28, 32, 40, 48, 56, 64, 72, 80, 88, 96)
+    count = 0
+    for path in (root / "cursors").iterdir():
+        if path.is_symlink() or not path.is_file():
+            continue
+        data = path.read_bytes()
+        if len(data) < 16 or data[:4] != b"Xcur":
+            continue
+        magic, header, version, entries = struct.unpack_from("<4I", data)
+        images = []
+        for index in range(entries):
+            kind, nominal, offset = struct.unpack_from("<3I", data, header + index * 12)
+            if kind == 0xfffd0002:
+                length, kind, nominal, version, width, height, x, y, delay = struct.unpack_from("<9I", data, offset)
+                pixels = data[offset + length:offset + length + width * height * 4]
+                if not width or not height or len(pixels) != width * height * 4:
+                    sys.exit(f"Invalid cursor: {path}; backup: {backup}")
+                images.append((nominal, width, height, x, y, delay, pixels))
+        if not images:
+            continue
+        chunks = []
+        source_sizes = sorted({image[0] for image in images})
+        for size in sizes:
+            nearest = min(source_sizes, key=lambda n: abs(n - size))
+            for nominal, width, height, x, y, delay, pixels in images:
+                if nominal != nearest:
+                    continue
+                w, h = max(1, round(width * size / nominal)), max(1, round(height * size / nominal))
+                scaled = bytearray()
+                for row in range(h):
+                    source_row = min(height - 1, row * height // h) * width
+                    for column in range(w):
+                        offset = (source_row + min(width - 1, column * width // w)) * 4
+                        scaled.extend(pixels[offset:offset + 4])
+                chunk = struct.pack("<9I", 36, 0xfffd0002, size, 1, w, h, min(w-1, round(x*w/width)), min(h-1, round(y*h/height)), delay) + bytes(scaled)
+                chunks.append((size, chunk))
+        offset = 16 + 12 * len(chunks)
+        table = []
+        for size, chunk in chunks:
+            table.append(struct.pack("<3I", 0xfffd0002, size, offset))
+            offset += len(chunk)
+        write(path, struct.pack("<4I", 0x72756358, 16, 0x10000, len(chunks)) + b"".join(table) + b"".join(chunk for _, chunk in chunks))
+        count += 1
+    print(f"Expanded {count} cursor files to {len(sizes)} sizes; backup: {backup}")
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("desktop", nargs="?", default=os.environ.get("XDG_CURRENT_DESKTOP", ""))
+parser.add_argument("--theme", default=os.environ.get("XCURSOR_THEME", ""))
+parser.add_argument("--size", type=int, default=os.environ.get("XCURSOR_SIZE", "24"))
+parser.add_argument("--x11-size", type=int)
+parser.add_argument("--display", default=os.environ.get("DISPLAY", ""))
+parser.add_argument("--settings-only", action="store_true")
+parser.add_argument("--x11-only", action="store_true", help=argparse.SUPPRESS)
+parser.add_argument("--expand-theme", metavar="THEME")
+options = parser.parse_args()
+if options.expand_theme:
+    expand_theme(options.expand_theme)
+    raise SystemExit(0)
+desktop = next((d for d in ("sway", "hyprland", "niri") if d in options.desktop.lower()), "")
+if not desktop or not options.theme or options.size <= 0:
+    parser.error("desktop, cursor theme and positive logical size are required")
+scale = 1.25
+runtime = Path(os.environ.get("XDG_RUNTIME_DIR", "/run/user/1000"))
+wayland = os.environ.get("WAYLAND_DISPLAY", "wayland-1")
+if desktop == "sway" and not options.settings_only:
+    try:
+        outputs = json.loads(subprocess.check_output(["swaymsg", "-t", "get_outputs", "-r"], timeout=5))
+        scales = [float(output["scale"]) for output in outputs if output.get("active")]
+        if scales:
+            scale = min(scales)
+    except (OSError, ValueError, KeyError, subprocess.SubprocessError):
+        pass
+    display_file = runtime / f"sway-satellite-{wayland}.display"
+    if display_file.exists():
+        options.display = display_file.read_text().strip()
+x11_size = options.size if options.x11_size is None else options.x11_size
+if options.x11_size is None and desktop == "sway" and (runtime / f"sway-satellite-{wayland}.cursor-hidpi").exists():
+    x11_size *= math.ceil(max(1, scale))
+if x11_size <= 0:
+    parser.error("X11 cursor size must be positive")
+state = home / ".local/state/desktop-session"
+state.mkdir(parents=True, exist_ok=True)
+environment = os.environ.copy()
+current_desktop = environment.get("XDG_CURRENT_DESKTOP", "")
+if desktop not in current_desktop.lower():
+    current_desktop = {"hyprland": "Hyprland", "niri": "niri", "sway": "sway"}[desktop]
+environment.update(XCURSOR_THEME=options.theme, XCURSOR_SIZE=str(options.size),
+                   XDG_CURRENT_DESKTOP=current_desktop,
+                   ELECTRON_OZONE_PLATFORM_HINT="x11" if desktop == "sway" else "wayland")
+if options.display:
+    environment["DISPLAY"] = options.display
+
+# Enable the backend adapter only for Sway; preserve unrelated preload entries.
+bridge = str(home / ".local/lib/desktop-cursor/$LIB/cursor-bridge.so")
+preloads = [entry for entry in re.split(r"[:\s]+", environment.get("LD_PRELOAD", ""))
+            if entry and "/desktop-cursor/" not in entry]
+if desktop == "sway":
+    preloads.insert(0, bridge)
+environment["LD_PRELOAD"] = ":".join(preloads)
+
+with (state / "settings.lock").open("w") as lock:
+    fcntl.flock(lock, fcntl.LOCK_EX)
+    # Native Wayland/GTK settings stay logical; X11 resources stay physical.
+    for version in ("gtk-3.0", "gtk-4.0"):
+        path = config / version / "settings.ini"
+        settings = configparser.ConfigParser(interpolation=None)
+        settings.optionxform = str
+        settings.read(path)
+        if not settings.has_section("Settings"):
+            settings.add_section("Settings")
+        settings["Settings"]["gtk-cursor-theme-name"] = options.theme
+        settings["Settings"]["gtk-cursor-theme-size"] = str(options.size)
+        from io import StringIO
+        content = StringIO()
+        settings.write(content, space_around_delimiters=False)
+        write(path, content.getvalue())
+    run(["gsettings", "set", "org.gnome.desktop.interface", "cursor-theme", options.theme])
+    run(["gsettings", "set", "org.gnome.desktop.interface", "cursor-size", str(options.size)])
+    if options.settings_only:
+        raise SystemExit(0)
+
+    resources = home / ".Xresources"
+    content = resources.read_text() if resources.exists() else ""
+    content = re.sub(r"(?m)^\s*Xcursor\.(?:theme|size)\s*:.*\n?", "", content)
+    content = content.rstrip() + f"\nXcursor.theme: {options.theme}\nXcursor.size: {x11_size}\n"
+    write(resources, content)
+    # This is the single global logical cursor configuration for future sessions.
+    write(config / "environment.d/cursor.conf",
+          "# Generated by sync-desktop-x11 at desktop login.\n"
+          f"XCURSOR_THEME={options.theme}\nXCURSOR_SIZE={options.size}\n"
+          f"ELECTRON_OZONE_PLATFORM_HINT={environment['ELECTRON_OZONE_PLATFORM_HINT']}\n")
+    # LD_PRELOAD is session-scoped; do not put it in global environment.d.
+    # Explicit X11-only settings: never source this into native Wayland globally.
+    x11_environment = (f"XCURSOR_THEME={options.theme}\nXCURSOR_SIZE={x11_size}\n"
+                       f"DISPLAY={options.display}\n")
+    write(config / "desktop-session/x11.env", x11_environment)
+    snapshot = {"desktop": desktop, "theme": options.theme, "size": options.size,
+                "x11_size": x11_size, "display": options.display}
+    write(config / "desktop-session/current.json", json.dumps(snapshot, indent=2) + "\n")
+    if desktop == "sway":
+        write(home / ".local/state/sway/xcursor.json", json.dumps(snapshot, indent=2) + "\n")
+
+    # Preserve unrelated flags while switching the display-backend/scale policy.
+    backend = "x11" if desktop == "sway" else "wayland"
+    for name in ("chrome-flags.conf", "code-flags.conf", "electron-flags.conf"):
+        path = config / name
+        lines = path.read_text().splitlines() if path.exists() else []
+        lines = [line for line in lines if not line.strip().startswith(
+            ("--ozone-platform=", "--force-device-scale-factor="))]
+        lines.append(f"--ozone-platform={backend}")
+        if desktop == "sway":
+            lines.append(f"--force-device-scale-factor={scale:g}")
+        write(path, "\n".join(lines) + "\n")
+
+    # Refresh service/DBus activation as well as configuration files on disk.
+    variables = [key for key in ("LD_PRELOAD", "XCURSOR_THEME", "XCURSOR_SIZE", "DISPLAY", "WAYLAND_DISPLAY",
+                  "XDG_CURRENT_DESKTOP", "XDG_SESSION_TYPE", "ELECTRON_OZONE_PLATFORM_HINT")
+                 if key in environment]
+    run(["dbus-update-activation-environment", "--systemd", *variables], env=environment)
+
+if desktop == "hyprland":
+    run(["hyprctl", "setcursor", options.theme, str(options.size)], env=environment)
+if options.display:
+    for attempt in range(30):
+        if run(["xrdb", "-query"], env=environment, quiet=True):
+            run(["xrdb", "-merge", str(home / ".Xresources")], env=environment)
+            if desktop == "sway":
+                paths = [Path(p).expanduser() for p in filter(None, environment.get("XCURSOR_PATH", "").split(":"))]
+                paths += [home / ".icons", home / ".local/share/icons", Path("/usr/local/share/icons"), Path("/usr/share/icons")]
+                cursor = next((p / options.theme / "cursors/left_ptr" for p in paths if (p / options.theme / "cursors/left_ptr").is_file()), None)
+                if cursor:
+                    run(["xsetroot", "-xcf", str(cursor), str(x11_size)], env=environment)
+            break
+        time.sleep(0.1)
+    else:
+        print("sync-desktop-x11: files updated; X server not ready for xrdb", flush=True)

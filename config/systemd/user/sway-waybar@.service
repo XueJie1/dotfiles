@@ -1,0 +1,18 @@
+[Unit]
+Description=Waybar for Sway (style %i)
+StartLimitIntervalSec=30
+StartLimitBurst=5
+
+[Service]
+Type=simple
+Environment=GDK_BACKEND=wayland
+UnsetEnvironment=LD_PRELOAD
+# Stop retrying after the Sway session/socket has disappeared.
+ExecCondition=/usr/bin/swaymsg -q -t get_version
+ExecStart=/usr/bin/waybar -c %h/.config/waybar/sway/config%i -s %h/.config/waybar/sway/style%i.css
+Restart=always
+RestartSec=2
+TimeoutStopSec=5
+KillMode=control-group
+StandardOutput=journal
+StandardError=journal

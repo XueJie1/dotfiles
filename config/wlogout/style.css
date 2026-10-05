@@ -7,12 +7,12 @@ button {
     background-repeat: no-repeat;
     background-position: center 38%;
     background-size: 56px;
-    background-color: #2c292f;
-    border: 1px solid #49454e;
+    background-color: #322825;
+    border: 1px solid #534340;
     border-radius: 28px;
     margin: 0;
     padding: 72px 24px 20px;
-    color: #e7e0e8;
+    color: #f1dfdb;
     font-family: "Noto Sans CJK SC", "JetBrainsMono Nerd Font", sans-serif;
     font-size: 16px;
     font-weight: 600;
@@ -22,10 +22,10 @@ button {
 button:focus,
 button:active,
 button:hover {
-    background-color: #4f3d74;
-    color: #ebddff;
+    background-color: #723425;
+    color: #ffdad2;
     outline-style: none;
-    border: 2px solid #d3bcfd;
+    border: 2px solid #ffb4a3;
     border-radius: 32px;
     box-shadow: 0 8px 24px alpha(#000000, 0.35);
 }

@@ -23,8 +23,16 @@
     "bluetooth",
     "network",
     "tray",
-    "custom/powermenu"
+    "group/power-controls"
   ],
+
+  "group/power-controls": {
+    "orientation": "horizontal",
+    "modules": [
+      "custom/platform-profile",
+      "custom/powermenu"
+    ]
+  },
 
   "niri/workspaces": {
     "format": "{index}",
@@ -44,8 +52,8 @@
 
   "clock": {
     "interval": 1,
-    "format": "  {:%H:%M}",
-    "format-alt": "  {:%Y-%m-%d %H:%M:%S}",
+    "format": " {:%H:%M}",
+    "format-alt": " {:%Y-%m-%d %H:%M:%S}",
     "tooltip-format": "<tt><small>{calendar}</small></tt>",
     "calendar": {
       "mode": "year",
@@ -55,20 +63,29 @@
     }
   },
 
-  "custom/cava": {
-    "exec": "~/.config/waybar/Cava.sh",
-    "tooltip": false
-  },
+//  "custom/cava": {
+ //   "exec": "~/.config/waybar/sway/Cava.sh",
+ //   "tooltip": false
+ // },
 
   "pulseaudio": {
     "scroll-step": 1,
     "format": "{icon} {volume}%",
-    "format-muted": " Muted",
-    "format-icons": { "default": ["", "", ""] },
-    "states": { "warning": 85 },
+    "format-muted": "󰝟 Muted",
+    // "states": { "warning": 85 },
     "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
     "on-click-right": "pavucontrol",
-    "tooltip": false
+    "tooltip": false,
+    "format-bluetooth": "{icon}  {volume}%",
+    "format-icons": {
+            "headphone": "",
+            "hands-free": "󰘂",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["", "", ""]
+    }
   },
 
   "cpu": {
@@ -78,8 +95,16 @@
 
   "memory": {
     "interval": 2,
-    "format": " {percentage}%",
+    "format": " {percentage}%",
     "states": { "warning": 85 }
+  },
+
+  "custom/platform-profile": {
+    "exec": "~/.config/waybar/niri/scripts/platform-profile.sh --status",
+    "return-type": "json",
+    "interval": 2,
+    "on-click": "~/.config/waybar/niri/scripts/platform-profile.sh --menu",
+    "tooltip": true
   },
 
   "battery": {
@@ -88,14 +113,14 @@
     "format": "{icon} {capacity}%",
     "format-charging": " {capacity}%",
     "format-full": "{icon} Full",
-    "format-icons": ["", "", "", "", ""],
-    "tooltip": false
+    "tooltip": false,
+    "format-icons": ["", "", "", "", ""]
   },
 
   "bluetooth": {
     "format": "",
     "format-disabled": "󰂲",
-    "format-connected": " {num_connections}",
+    "format-connected": " {num_connections}",
     "tooltip-format": "{controller_alias}\t{controller_address}",
     "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
     "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
@@ -104,8 +129,8 @@
 
   "network": {
     "interval": 2,
-    "format-wifi": " {essid}",
-    "format-ethernet": " {ifname}",
+    "format-wifi": " {essid}",
+    "format-ethernet": " {ifname}",
     "format-linked": " {essid} (No IP)",
     "format-disconnected": "󰌙 Disconnected",
     "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}",
@@ -118,8 +143,8 @@
   },
 
   "custom/powermenu": {
-    "format": "",
-    "on-click": "~/.config/rofi/powermenu.sh",
-    "tooltip": false
+    "format": "󰐥",
+    "on-click": "~/.config/waybar/niri/scripts/power-menu.sh",
+    "tooltip-format": "电源选项"
   }
 }

@@ -13,14 +13,32 @@ if [[ ! -d "$DEST" ]]; then
 fi
 
 DIRS=(
+    sway
+    niri
     hypr
+    quickshell
     waybar
+    rofi
     mako
+    dunst
     tofi
+    fuzzel
     alacritty
+    kitty
     fish
     fcitx5
     fontconfig
+    matugen
+    swaylock
+    wlogout
+    btop
+    cava
+    fastfetch
+    yazi
+    mpv
+    nvim
+    environment.d
+    xdg-desktop-portal
 )
 
 for dir in "${DIRS[@]}"; do
@@ -33,8 +51,27 @@ for dir in "${DIRS[@]}"; do
     fi
 
     echo "同步 $dir ..."
-    rm -rf "$dst"
-    cp -r "$src" "$dst"
+    # Replace legacy repository links, without following them into live config.
+    if [[ -L "$dst" ]]; then
+        unlink "$dst"
+    fi
+    mkdir -p "$dst"
+    rsync -a --delete --delete-excluded \
+        --exclude='.git' --exclude='__pycache__' --exclude='*.pyc' \
+        --exclude='*.log' --exclude='*.bak*' --exclude='*.old' \
+        --exclude='backups' --exclude='backup' --exclude='archive' \
+        --exclude='cache' --exclude='mpvpaper_thumbnails' \
+        --exclude='fish_variables' --exclude='cached_layouts' \
+        "$src/" "$dst/"
+done
+
+mkdir -p "$DEST/systemd/user" "$DEST/desktop-session/cursor-bridge" "$DOTFILES_DIR/local/bin"
+for service in sway-waybar@.service niri-wallpaper.service quickshell-ii.service; do
+    [[ ! -f "$CONFIG_DIR/systemd/user/$service" ]] || cp -p "$CONFIG_DIR/systemd/user/$service" "$DEST/systemd/user/"
+done
+rsync -a "$CONFIG_DIR/desktop-session/cursor-bridge/" "$DEST/desktop-session/cursor-bridge/"
+for script in desktop-session sway-intel sway-nvidia sway-x11 sync-desktop-x11 sync-gtk-cursor google-chrome-stable; do
+    [[ ! -e "$HOME/.local/bin/$script" ]] || cp -Pp "$HOME/.local/bin/$script" "$DOTFILES_DIR/local/bin/"
 done
 
 echo "✅ 配置文件已同步到 $DEST"

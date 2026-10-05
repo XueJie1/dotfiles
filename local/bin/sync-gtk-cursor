@@ -1,0 +1,92 @@
+#!/bin/sh
+
+set -eu
+
+theme=${1:?"usage: sync-gtk-cursor THEME SIZE"}
+size=${2:?"usage: sync-gtk-cursor THEME SIZE"}
+
+case $size in
+    *[!0-9]*|'')
+        echo "sync-gtk-cursor: SIZE must be a positive integer" >&2
+        exit 2
+        ;;
+esac
+
+if [ "$size" -le 0 ]; then
+    echo "sync-gtk-cursor: SIZE must be a positive integer" >&2
+    exit 2
+fi
+
+tmp=
+trap 'if [ -n "${tmp:-}" ]; then rm -f -- "$tmp"; fi' EXIT HUP INT TERM
+
+update_settings() {
+    file=$1
+    directory=${file%/*}
+    mkdir -p -- "$directory"
+    [ -e "$file" ] || : >"$file"
+
+    tmp=$(mktemp "${file}.tmp.XXXXXX")
+    awk -v theme="$theme" -v size="$size" '
+        function emit_cursor_settings() {
+            if (!theme_written) {
+                print "gtk-cursor-theme-name=" theme
+                theme_written = 1
+            }
+            if (!size_written) {
+                print "gtk-cursor-theme-size=" size
+                size_written = 1
+            }
+        }
+
+        /^\[Settings\][[:space:]]*$/ {
+            if (in_settings)
+                emit_cursor_settings()
+            in_settings = 1
+            saw_settings = 1
+            print
+            next
+        }
+
+        /^\[[^]]+\][[:space:]]*$/ {
+            if (in_settings)
+                emit_cursor_settings()
+            in_settings = 0
+            print
+            next
+        }
+
+        in_settings && /^[[:space:]]*gtk-cursor-theme-name[[:space:]]*=/ {
+            if (!theme_written)
+                print "gtk-cursor-theme-name=" theme
+            theme_written = 1
+            next
+        }
+
+        in_settings && /^[[:space:]]*gtk-cursor-theme-size[[:space:]]*=/ {
+            if (!size_written)
+                print "gtk-cursor-theme-size=" size
+            size_written = 1
+            next
+        }
+
+        { print }
+
+        END {
+            if (in_settings) {
+                emit_cursor_settings()
+            } else if (!saw_settings) {
+                if (NR > 0)
+                    print ""
+                print "[Settings]"
+                emit_cursor_settings()
+            }
+        }
+    ' "$file" >"$tmp"
+
+    mv -- "$tmp" "$file"
+    tmp=
+}
+
+update_settings "${XDG_CONFIG_HOME:-$HOME/.config}/gtk-3.0/settings.ini"
+update_settings "${XDG_CONFIG_HOME:-$HOME/.config}/gtk-4.0/settings.ini"

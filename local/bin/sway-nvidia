@@ -1,0 +1,22 @@
+#!/bin/sh
+set -eu
+. "$HOME/.config/sway/locale.sh"
+# Resolve PCI paths before composing wlroots' colon-separated device list.
+# Keep Intel available: the laptop panel is physically connected to it.
+nvidia_card=$(readlink -f /dev/dri/by-path/pci-0000:01:00.0-card)
+intel_card=$(readlink -f /dev/dri/by-path/pci-0000:00:02.0-card)
+if [ ! -c "$nvidia_card" ] || [ ! -c "$intel_card" ]; then
+    echo 'Sway NVIDIA: required NVIDIA/Intel DRM devices are missing.' >&2
+    exit 1
+fi
+export WLR_DRM_DEVICES="$nvidia_card:$intel_card"
+export WLR_RENDERER=gles2
+# Clear Intel-only settings inherited from the greetd greeter.
+unset DRI_PRIME __GLX_VENDOR_LIBRARY_NAME __NV_PRIME_RENDER_OFFLOAD __VK_LAYER_NV_optimus GBM_BACKEND WLR_RENDER_DRM_DEVICE XWAYLAND_NO_GLAMOR
+export XDG_CURRENT_DESKTOP=sway
+export XDG_SESSION_DESKTOP=sway
+export XDG_SESSION_TYPE=wayland
+export MOZ_ENABLE_WAYLAND=1
+export QT_QPA_PLATFORM='wayland;xcb'
+mkdir -p "$HOME/.local/state/sway"
+exec /usr/bin/sway --unsupported-gpu "$@" >> "$HOME/.local/state/sway/nvidia.log" 2>&1

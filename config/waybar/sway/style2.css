@@ -1,0 +1,128 @@
+@import "colors.css";
+* {
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 12pt;
+  font-weight: bold;
+  border-radius: 0px;
+  transition-property: background-color;
+  transition-duration: 0.5s;
+}
+@keyframes blink_red {
+  to {
+    background-color: @error;
+    color: @on_primary;
+  }
+}
+.warning, .critical, .urgent {
+  animation-name: blink_red;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+window#waybar {
+  background-color: transparent;
+}
+window > box {
+  margin-left: 5px;
+  margin-right: 5px;
+  margin-top: 5px;
+  background-color: @surface;
+}
+#workspaces {
+  padding-left: 0px;
+  padding-right: 4px;
+}
+#workspaces button {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+#workspaces button.focused {
+  background-color: @primary;
+  color: @on_primary;
+}
+#workspaces button.urgent {
+  color: @on_primary;
+}
+#workspaces button:hover {
+  background-color: @tertiary;
+  color: @on_primary;
+}
+tooltip {
+  background: @surface_container;
+}
+tooltip label {
+  color: @on_surface;
+}
+#custom-launcher {
+  padding-left: 8px;
+  padding-right: 6px;
+  color: @primary;
+}
+#mode, #clock, #memory, #temperature,#cpu,#mpd, #idle_inhibitor, #temperature, #backlight, #pulseaudio, #network, #battery, #custom-powermenu, #custom-cava-internal {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+/* #mode { */
+/* 	margin-left: 10px; */
+/* 	background-color: @tertiary; */
+/*     color: @on_primary; */
+/* } */
+#memory {
+  color: @primary;
+}
+#cpu {
+  color: @secondary;
+}
+#clock {
+  color: @on_surface;
+}
+#idle_inhibitor {
+  color: @tertiary;
+}
+#temperature {
+  color: @primary;
+}
+#backlight {
+  color: @tertiary;
+}
+#pulseaudio {
+  color: @on_surface;
+  /* High volume must not inherit the global warning blink animation. */
+  animation-name: none;
+}
+#network {
+  color: @secondary;
+}
+
+#network.disconnected {
+  color: rgb(255, 255, 255);
+}
+#battery.charging, #battery.full, #battery.discharging {
+  color: @tertiary;
+}
+#battery.critical:not(.charging) {
+  color: @error;
+}
+#custom-powermenu {
+  color: @error;
+}
+#tray {
+  padding-right: 8px;
+  padding-left: 10px;
+}
+#mpd.paused {
+  color: @surface_container;
+  font-style: italic;
+}
+#mpd.stopped {
+  background: transparent;
+}
+#mpd {
+  color: @primary;
+}
+#custom-cava-internal{
+  font-family: "Hack Nerd Font" ;
+}

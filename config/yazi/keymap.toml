@@ -1,0 +1,4 @@
+[manager]
+prepend_keymap = [
+  { on = [ "p", "i" ], run = 'shell --confirm "wl-paste -t image/png > pasted_$(date +%Y%m%d_%H%M%S).png"', desc = "Paste image from clipboard" },
+]

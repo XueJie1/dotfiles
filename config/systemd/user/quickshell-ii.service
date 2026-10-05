@@ -1,0 +1,19 @@
+[Unit]
+Description=Quickshell illogical-impulse desktop shell
+PartOf=graphical-session.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+# Do not restart into a dead Hyprland session after logout.
+ExecCondition=/usr/bin/test -S %t/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket.sock
+ExecStart=/usr/bin/qs -c ii --no-duplicate --no-color --log-times
+Restart=always
+RestartSec=3
+# Applications launched from the shell must survive a shell restart.
+KillMode=process
+TimeoutStopSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=quickshell-ii
