@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eu
-: "${DISPLAY:?Intel Sway launcher must set DISPLAY}"
+: "${DISPLAY:?Sway launcher must set DISPLAY}"
 mkdir -p "$HOME/.local/state/sway"
 cursor_marker="$XDG_RUNTIME_DIR/sway-satellite-$WAYLAND_DISPLAY.cursor-hidpi"
 satellite_binary="$HOME/.local/libexec/xwayland-satellite-hidpi"

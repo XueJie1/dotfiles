@@ -4,11 +4,10 @@ set $term kitty
 set $menu exec ~/.config/rofi/launcher.sh
 font pango:Sans 10
 
-# 外屏在左，内屏在右；沿用现有桌面的 125% 缩放。
-output eDP-1 mode 1920x1080@165.008Hz scale 1.25 pos 2048 0
+# Intel 内屏：1080p@165Hz，125% 缩放。
+output eDP-1 mode 1920x1080@165.008Hz scale 1.25 pos 0 0
 # Prefer crisp pixels when a client buffer needs resampling.
 output eDP-1 scale_filter nearest
-output HDMI-A-1 mode 2560x1440@143.999Hz scale 1.25 pos 0 0
 output * adaptive_sync off
 include ~/.config/sway/wallpaper.conf
 
@@ -46,7 +45,9 @@ for_window [window_role="dialog"] floating enable
 include /etc/sway/config.d/*
 # Sway exports the effective seat0 theme/size; sync at login and on reload.
 exec_always ~/.config/sway/sync-xcursor.py > ~/.local/state/sway/xcursor.log 2>&1
+exec_always env WEBKIT_DISABLE_DMABUF_RENDERER=0 WEBKIT_DISABLE_COMPOSITING_MODE=0 /home/cao/workspace/magpie/magpie-linux-amd64  >/dev/null 2>&1
 exec fcitx5 -d
+exec systemctl --user start plasma-polkit-agent.service
 exec ~/.config/waybar/sway/launch_waybar.sh 2
 # Plain exec runs once at login, not again on config reload.
 exec ~/.config/sway/wallpaper.py startup

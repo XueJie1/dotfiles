@@ -80,9 +80,6 @@
   },
   "clock": {
     "cursor": false,
-    "on-click": "~/.config/sway/wallpaper.py gui",
-    "on-click-right": "~/.config/waybar/sway/wallpaper_random.sh &",
-    "on-click-middle": "~/.config/waybar/sway/live_wallpaper.sh &",
     "interval": 1,
     "format": "{:%I:%M %p  %A %b %d}",
     "tooltip": true,
@@ -124,7 +121,7 @@
     "tooltip": false
   },
   "temperature": {
-    "hwmon-path": "/sys/class/hwmon/hwmon6/temp2_input",
+    "hwmon-path": "/sys/class/hwmon/hwmon7/temp2_input",
     //"critical-threshold": 80,
     "tooltip": false,
     "format": " {temperatureC}°C"
