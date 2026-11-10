@@ -218,18 +218,31 @@ PanelWindow {
         root.visible = true;
     }
 
+    // The screenshot is captured by grim at physical resolution, so detection
+    // results are in physical pixels while every region comparison and every
+    // TargetRegion coordinate is in logical pixels.
+    readonly property real screenshotScale: root.monitorScale > 0 ? root.monitorScale : 1
+    function toLogicalRegions(regions) {
+        const scale = root.screenshotScale;
+        if (scale === 1) return regions;
+        return regions.map(region => ({
+            at: [region.at[0] / scale, region.at[1] / scale],
+            size: [region.size[0] / scale, region.size[1] / scale],
+        }));
+    }
+
     Process {
         id: imageDetectionProcess
-        command: ["bash", "-c", `${Directories.scriptPath}/images/find-regions-venv.sh ` 
-            + `--hyprctl ` 
-            + `--image '${StringUtils.shellSingleQuoteEscape(root.screenshotPath)}' ` 
-            + `--max-width ${Math.round(root.screen.width * root.falsePositivePreventionRatio)} ` 
-            + `--max-height ${Math.round(root.screen.height * root.falsePositivePreventionRatio)} `]
+        command: ["bash", "-c", `${Directories.scriptPath}/images/find-regions-venv.sh `
+            + `--hyprctl `
+            + `--image '${StringUtils.shellSingleQuoteEscape(root.screenshotPath)}' `
+            + `--max-width ${Math.round(root.screen.width * root.screenshotScale * root.falsePositivePreventionRatio)} `
+            + `--max-height ${Math.round(root.screen.height * root.screenshotScale * root.falsePositivePreventionRatio)} `]
         stdout: StdioCollector {
             id: imageDimensionCollector
             onStreamFinished: {
                 imageRegions = RegionFunctions.filterImageRegions(
-                    JSON.parse(imageDimensionCollector.text),
+                    root.toLogicalRegions(JSON.parse(imageDimensionCollector.text)),
                     root.windowRegions
                 );
             }

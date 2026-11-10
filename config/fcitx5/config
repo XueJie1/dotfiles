@@ -83,3 +83,6 @@
 # Interval of saving user data in minutes
 # AutoSavePeriod=30
 
+
+[Behavior]
+ActiveByDefault=True

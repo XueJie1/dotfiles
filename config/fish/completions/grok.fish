@@ -43,7 +43,7 @@ complete -c grok -n "__fish_grok_needs_command" -l rules -d 'Extra rules to appe
 complete -c grok -n "__fish_grok_needs_command" -l compaction-mode -d 'Compaction mode [summary|transcript|segments]. `summary` adds no pointer; `transcript` points at the raw transcript; `segments` (default) persists per-segment markdown to grep. Sets `GROK_COMPACTION_MODE`' -r
 complete -c grok -n "__fish_grok_needs_command" -l compaction-detail -d 'Segments verbatim detail [none|minimal|balanced|verbose] (default `verbose`). Only affects `--compaction-mode segments`. Sets `GROK_COMPACTION_DETAIL`' -r
 complete -c grok -n "__fish_grok_needs_command" -l system-prompt-override -d 'Override the agent\'s system prompt (compat alias: --system-prompt)' -r
-complete -c grok -n "__fish_grok_needs_command" -s r -l resume -d 'Resume a session by ID or title, or the most recent if omitted. Non-ID values match session titles for the current directory, ignoring letter case; UUID-shaped values always mean IDs. Among duplicate titles a sole renamed match wins; otherwise the resume fails as ambiguous' -r
+complete -c grok -n "__fish_grok_needs_command" -s r -l resume -d 'Resume a session by ID or title, or the most recent if omitted. Non-ID values match session titles for the current directory, ignoring letter case; UUID-shaped values always mean IDs. Without an exact match, the same words joined by any separators also match: quote "fix login bug" or write fix-login-bug. Among duplicate titles a sole renamed match wins; otherwise the resume fails as ambiguous' -r
 complete -c grok -n "__fish_grok_needs_command" -l load -d 'Resume a previous session by session ID (alias for --resume)' -r
 complete -c grok -n "__fish_grok_needs_command" -s s -l session-id -d 'Use a specific session UUID for a **new** conversation (must be a valid UUID and must not already exist under the target session directory). With `--resume`/`--continue`, only valid together with `--fork-session` (names the forked session). Does not resume existing sessions, use `--resume` / `--continue` instead' -r
 complete -c grok -n "__fish_grok_needs_command" -s w -l worktree -d 'Start the session in a new git worktree, optionally named. With `--resume` of a remote session, pass `--restore-code` to apply the snapshot codebase (conversation is restored either way)' -r
@@ -59,7 +59,7 @@ auto\t''
 dontAsk\t''
 bypassPermissions\t''
 plan\t''"
-complete -c grok -n "__fish_grok_needs_command" -l background-wait-timeout -d 'Max seconds to wait for background work after the first turn ends (headless only). Applies to bash/monitor `task_completed`, background subagents (`SubagentFinished`), and any still-running non-persistent work. Persistent `monitor(persistent:true)` never completes and always waits the full timeout. When given, this also bounds how long the run waits on an active goal. When unset, the run waits on an active goal until the goal ends' -r
+complete -c grok -n "__fish_grok_needs_command" -l background-wait-timeout -d 'Max seconds to wait for background work after the latest turn ends (headless only). Applies to bash/monitor `task_completed` and background subagents (`SubagentFinished`); a follow-up turn one of those completions starts runs to its end and restarts the clock. Work still running when the wait runs out is stopped and the run exits 1. Persistent `monitor(persistent:true)` never completes and always waits the full timeout. When given, this also bounds how long the run waits on an active goal. When unset, the run waits on an active goal until the goal ends' -r
 complete -c grok -n "__fish_grok_needs_command" -l sandbox -d 'Sandbox profile for filesystem and network access' -r
 complete -c grok -n "__fish_grok_needs_command" -l storage-mode -d 'Session storage mode: local or writeback' -r
 complete -c grok -n "__fish_grok_needs_command" -l client-identifier -d 'Override the client identifier sent to the agent' -r
@@ -81,7 +81,7 @@ complete -c grok -n "__fish_grok_needs_command" -l experimental-memory -d 'Legac
 complete -c grok -n "__fish_grok_needs_command" -l no-memory -d 'Legacy compatibility flag for disabling cross-session memory'
 complete -c grok -n "__fish_grok_needs_command" -l memory-flush -d 'Run a memory flush after the headless turn (or instead of a prompt when resuming). Calls `x.ai/memory/flush` and waits for capture of finished turns. Headless only: `/flush` as `-p` text is not a reliable flush trigger'
 complete -c grok -n "__fish_grok_needs_command" -l disable-web-search -d 'Disable web search and web fetch tools'
-complete -c grok -n "__fish_grok_needs_command" -l no-wait-for-background -d 'Exit as soon as the first agent turn ends, without waiting for pending background bash/monitor tasks or background subagents (headless only). Use this for fast scripts that only need the first turn\'s text. Does not wait for server-side auto-wake output or persistent monitors (those hit the timeout)'
+complete -c grok -n "__fish_grok_needs_command" -l no-wait-for-background -d 'Exit as soon as the first agent turn ends, without waiting for pending background bash/monitor tasks, background subagents, or the follow-up turns their completions start (headless only). Use this for fast scripts that only need the first turn\'s text. The work this exit stops does not change the exit code'
 complete -c grok -n "__fish_grok_needs_command" -l terminal -d 'Enable terminal support for the agent'
 complete -c grok -n "__fish_grok_needs_command" -l fs-read -d 'Enable client-side file reads'
 complete -c grok -n "__fish_grok_needs_command" -l fs-write -d 'Enable client-side file writes'
@@ -469,7 +469,7 @@ complete -c grok -n "__fish_grok_using_subcommand trace" -l json -d 'Emit machin
 complete -c grok -n "__fish_grok_using_subcommand trace" -l debug -d 'Enable debug logging'
 complete -c grok -n "__fish_grok_using_subcommand trace" -s h -l help -d 'Print help'
 complete -c grok -n "__fish_grok_using_subcommand update" -l version -d 'Install a specific version (e.g. 0.1.150 or 0.1.151-alpha.2)' -r
-complete -c grok -n "__fish_grok_using_subcommand update" -l channel -d 'Switch to a named channel managed config defines' -r
+complete -c grok -n "__fish_grok_using_subcommand update" -l channel -d 'Switch to a custom channel managed config defines' -r
 complete -c grok -n "__fish_grok_using_subcommand update" -l trigger -d 'Internal: what spawned this `grok update` (`user_command`, `auto_background`, `leader_converge`). Hidden' -r
 complete -c grok -n "__fish_grok_using_subcommand update" -l leader-socket -d 'Use a custom leader socket path instead of the default `~/.grok/leader.sock`. A local/branch build can thus run an isolated leader without colliding with the default one already running on the machine Name it `~/.grok/leader-*.sock` to keep `grok leader list/kill` able to find it; any other location works but won\'t be auto-discovered' -r -F
 complete -c grok -n "__fish_grok_using_subcommand update" -l debug-file -d 'Write debug logs to FILE' -r -F

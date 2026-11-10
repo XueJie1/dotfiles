@@ -1,0 +1,17 @@
+# NVIDIA-only DRM session. The Intel card is not opened at all, so the
+# eDP-1 rule in the shared config simply never matches here.
+include ~/.config/sway/config
+
+# Mirror the Intel session: satellite-backed XWayland keeps X11 clients at
+# physical pixels so Xft.dpi and the doubled cursor size take effect.
+xwayland disabled
+exec ~/.config/sway/start-xwayland-satellite.sh
+
+# Keep the laptop panel out even if the Intel card ever leaks in.
+output eDP-1 disable
+
+# The only display wired to the RTX 3050. Mode can be listed at runtime with
+# `swaymsg -t get_outputs`.
+output HDMI-A-1 mode 2560x1440 pos 0 0 scale 1.25
+# Match the Intel session: prefer crisp pixels when a client buffer is resampled.
+output HDMI-A-1 scale_filter nearest

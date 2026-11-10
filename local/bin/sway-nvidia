@@ -1,22 +1,55 @@
 #!/bin/sh
 set -eu
 . "$HOME/.config/sway/locale.sh"
-# Resolve PCI paths before composing wlroots' colon-separated device list.
-# Keep Intel available: the laptop panel is physically connected to it.
+
+# NVIDIA-only DRM session. Handing wlroots the Intel card as well would expose
+# the laptop panel (eDP-1); here only the RTX 3050 is opened so the sole output
+# is the external monitor wired to it.
 nvidia_card=$(readlink -f /dev/dri/by-path/pci-0000:01:00.0-card)
-intel_card=$(readlink -f /dev/dri/by-path/pci-0000:00:02.0-card)
-if [ ! -c "$nvidia_card" ] || [ ! -c "$intel_card" ]; then
-    echo 'Sway NVIDIA: required NVIDIA/Intel DRM devices are missing.' >&2
+nvidia_render=$(readlink -f /dev/dri/by-path/pci-0000:01:00.0-render)
+if [ ! -c "$nvidia_card" ]; then
+    echo 'Sway NVIDIA: NVIDIA DRM device is missing.' >&2
     exit 1
 fi
-export WLR_DRM_DEVICES="$nvidia_card:$intel_card"
+
+# WLR_*_DEVICES uses ':' as its separator, so resolved cardN paths are used
+# instead of the by-path names.
+export WLR_DRM_DEVICES="$nvidia_card"
+export WLR_RENDER_DRM_DEVICE="$nvidia_render"
+export WLR_BACKENDS=drm,libinput
 export WLR_RENDERER=gles2
-# Clear Intel-only settings inherited from the greetd greeter.
-unset DRI_PRIME __GLX_VENDOR_LIBRARY_NAME __NV_PRIME_RENDER_OFFLOAD __VK_LAYER_NV_optimus GBM_BACKEND WLR_RENDER_DRM_DEVICE XWAYLAND_NO_GLAMOR
+# A login session must start on DRM, never nest inside the greeter's display.
+unset DISPLAY WAYLAND_DISPLAY WAYLAND_SOCKET
+
+export GBM_BACKEND=nvidia-drm
+export __GLX_VENDOR_LIBRARY_NAME=nvidia
+export __NV_PRIME_RENDER_OFFLOAD=1
+export __VK_LAYER_NV_optimus=NVIDIA_only
+export DRI_PRIME=1
+export LIBVA_DRIVER_NAME=nvidia
+# WebKit picks its own renderer: forcing the flags breaks it on this driver.
+export MAGPIE_WEBKIT_COMPAT=0
 export XDG_CURRENT_DESKTOP=sway
 export XDG_SESSION_DESKTOP=sway
 export XDG_SESSION_TYPE=wayland
+export ELECTRON_OZONE_PLATFORM_HINT=x11
+# $LIB is expanded by the ELF loader (lib/lib32), not by the shell.
+cursor_bridge="$HOME/.local/lib/desktop-cursor/"'$LIB/cursor-bridge.so'
+export LD_PRELOAD="$cursor_bridge${LD_PRELOAD:+:$LD_PRELOAD}"
 export MOZ_ENABLE_WAYLAND=1
 export QT_QPA_PLATFORM='wayland;xcb'
+# Input method variables must be inherited by Sway and its application launchers.
+export XMODIFIERS=@im=fcitx
+export QT_IM_MODULE=fcitx
+export SDL_IM_MODULE=fcitx
+display_number=1
+while [ -e "/tmp/.X11-unix/X$display_number" ] || [ -e "/tmp/.X$display_number-lock" ]; do
+    display_number=$((display_number + 1))
+    [ "$display_number" -lt 100 ] || exit 1
+done
+export DISPLAY=:$display_number
+unset XAUTHORITY
+export _JAVA_AWT_WM_NONREPARENTING=1
 mkdir -p "$HOME/.local/state/sway"
-exec /usr/bin/sway --unsupported-gpu "$@" >> "$HOME/.local/state/sway/nvidia.log" 2>&1
+# wlroots refuses to start on the proprietary driver unless this flag is passed.
+exec /usr/bin/sway --unsupported-gpu --config "$HOME/.config/sway/config-nvidia" "$@" >> "$HOME/.local/state/sway/nvidia.log" 2>&1

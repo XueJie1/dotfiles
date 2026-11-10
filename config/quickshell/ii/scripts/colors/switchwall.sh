@@ -118,7 +118,7 @@ CUSTOM_DIR="$XDG_CONFIG_HOME/hypr/custom"
 RESTORE_SCRIPT_DIR="$CUSTOM_DIR/scripts"
 RESTORE_SCRIPT="$RESTORE_SCRIPT_DIR/__restore_video_wallpaper.sh"
 THUMBNAIL_DIR="$RESTORE_SCRIPT_DIR/mpvpaper_thumbnails"
-VIDEO_OPTS="no-config no-audio loop-file hwdec=vaapi vo=gpu-next gpu-api=opengl video-sync=display-resample scale=bilinear interpolation=no panscan=1.0 video-align-x=0.5 video-align-y=0.5"
+VIDEO_OPTS="no-config no-audio loop-file hwdec=vaapi profile=fast video-sync=audio panscan=1.0"
 
 is_video() {
     local extension="${1##*.}"

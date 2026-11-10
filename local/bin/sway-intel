@@ -17,6 +17,8 @@ export WLR_RENDERER=gles2
 export DRI_PRIME=0
 export __GLX_VENDOR_LIBRARY_NAME=mesa
 unset __NV_PRIME_RENDER_OFFLOAD __VK_LAYER_NV_optimus GBM_BACKEND XWAYLAND_NO_GLAMOR
+# WebKit keeps its DMABUF renderer here; the Intel GBM stack supports it.
+export MAGPIE_WEBKIT_COMPAT=1
 export XDG_CURRENT_DESKTOP=sway
 export XDG_SESSION_DESKTOP=sway
 export XDG_SESSION_TYPE=wayland
@@ -27,6 +29,10 @@ cursor_bridge="$HOME/.local/lib/desktop-cursor/"'$LIB/cursor-bridge.so'
 export LD_PRELOAD="$cursor_bridge${LD_PRELOAD:+:$LD_PRELOAD}"
 export MOZ_ENABLE_WAYLAND=1
 export QT_QPA_PLATFORM='wayland;xcb'
+# Input method variables must be inherited by Sway and its application launchers.
+export XMODIFIERS=@im=fcitx
+export QT_IM_MODULE=fcitx
+export SDL_IM_MODULE=fcitx
 # WLR_BACKENDS is explicitly DRM above; DISPLAY cannot select a nested backend.
 display_number=1
 while [ -e "/tmp/.X11-unix/X$display_number" ] || [ -e "/tmp/.X$display_number-lock" ]; do

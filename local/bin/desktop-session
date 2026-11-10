@@ -45,6 +45,13 @@ if name in applications or name == "sway-x11":
     command = sys.argv[1:] if name == "sway-x11" else ["/usr/bin/" + ("code-oss" if name == "code" else name), *sys.argv[1:]]
     if not command:
         sys.exit("Usage: sway-x11 PROGRAM [ARGUMENTS...]")
+    if name == "windterm":
+        # WindTerm bundles a legacy Fcitx4 plugin. Use the compatible system
+        # Fcitx5 plugin without exposing unrelated system Qt plugins.
+        os.environ["QT_IM_MODULE"] = "fcitx5"
+        plugins = str(home / ".local/lib/windterm/qt-plugins")
+        existing_plugins = os.environ.get("QT_PLUGIN_PATH", "")
+        os.environ["QT_PLUGIN_PATH"] = plugins + (":" + existing_plugins if existing_plugins else "")
     if "sway" in os.environ.get("XDG_CURRENT_DESKTOP", "").lower():
         if name == "waypaper":
             if len(command) == 1:

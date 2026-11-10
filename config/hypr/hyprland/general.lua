@@ -79,8 +79,9 @@ hl.config({
 			xray = true,
 			special = false,
 			new_optimizations = true,
-			size = 10,
-			passes = 3,
+			-- 30fps wallpaper invalidates blur every frame. 5x2 is about a third of 10x3.
+			size = 5,
+			passes = 2,
 			brightness = 1,
 			noise = 0.05,
 			contrast = 0.89,
@@ -95,7 +96,7 @@ hl.config({
 			enabled = true,
 			range = 20,
 			offset = { 0, 2 },
-			render_power = 10,
+			render_power = 4,
 			color = "rgba(00000020)",
 		},
 		-- Dim

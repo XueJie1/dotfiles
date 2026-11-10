@@ -34,10 +34,22 @@ Scope {
             let p1 = players[i];
             let group = [i];
 
-            // Find duplicates by trackTitle prefix
+            // Find duplicates by trackTitle prefix or near-identical progress.
+            // Progress may only match when both players have a real length;
+            // otherwise an idle browser player (0:00 / 0:00) swallows every
+            // real player that comes after it.
             for (let j = i + 1; j < players.length; ++j) {
                 let p2 = players[j];
-                if (p1.trackTitle && p2.trackTitle && (p1.trackTitle.includes(p2.trackTitle) || p2.trackTitle.includes(p1.trackTitle)) || (p1.position - p2.position <= 2 && p1.length - p2.length <= 2)) {
+                const sameTitle = p1.trackTitle && p2.trackTitle
+                    && (p1.trackTitle === p2.trackTitle
+                        || p1.trackTitle.includes(p2.trackTitle)
+                        || p2.trackTitle.includes(p1.trackTitle));
+                const sameProgress = p1.length > 0 && p2.length > 0
+                    && Math.abs(p1.position - p2.position) <= 2
+                    && Math.abs(p1.length - p2.length) <= 2;
+                const bothEmptyIdle = !p1.trackTitle && !p2.trackTitle
+                    && p1.length === 0 && p2.length === 0;
+                if (sameTitle || sameProgress || bothEmptyIdle) {
                     group.push(j);
                 }
             }
