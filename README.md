@@ -1,6 +1,6 @@
 # Dotfiles
 
-2026-10-05 当前桌面配置：Sway、Niri、Hyprland、Waybar、Rofi、Quickshell、终端、主题和输入法。Sway Logout 使用 `swaymsg exit`。
+2026-11-10 当前桌面配置：Sway、Niri、Waybar、Rofi、终端、主题和输入法。Hyprland 与 end-4/dots-hyprland 已卸载；`config/hypr/` 仅保留 sway 锁屏使用的 hyprlock 配置。Sway Logout 使用 `swaymsg exit`。
 
 - `config/` 对应 `~/.config/`。当前 Waybar 入口为 `waybar/sway/` 和 `waybar/niri/`。
 - `local/bin/` 对应 `~/.local/bin/`，包含桌面会话及应用启动脚本。
