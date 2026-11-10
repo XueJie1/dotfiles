@@ -1,0 +1,108 @@
+diff --git a/include/wayland-internal.h b/include/wayland-internal.h
+index 5c844b9c..63e22d02 100644
+--- a/include/wayland-internal.h
++++ b/include/wayland-internal.h
+@@ -140,6 +140,12 @@ struct _wayland_seat {
+   } wheel_continuous;
+ 
+   struct zwp_text_input_v3 *text_input;
++  /* Text being composed by the input method. It is shown in the entry on top
++   * of the committed text, but is not part of the filter query until it is
++   * committed. */
++  gchar *preedit_base;
++  int preedit_cursor;
++  gboolean preedit_active;
+ };
+ 
+ /* Supported interface versions */
+diff --git a/source/wayland/display.c b/source/wayland/display.c
+index 28e80d54..cba57abc 100644
+--- a/source/wayland/display.c
++++ b/source/wayland/display.c
+@@ -1147,6 +1147,8 @@ static void wayland_keyboard_release(wayland_seat *self) {
+     zwp_text_input_v3_destroy(self->text_input);
+     self->text_input = NULL;
+   }
++  g_clear_pointer(&self->preedit_base, g_free);
++  self->preedit_active = FALSE;
+ 
+   wl_keyboard_release(self->keyboard);
+ 
+@@ -1455,8 +1457,22 @@ static void text_input_enter(void *data, struct zwp_text_input_v3 *text_input,
+   update_cursor_rectangle(text_input);
+   zwp_text_input_v3_commit(text_input);
+ }
++static void wayland_seat_clear_preedit(wayland_seat *self) {
++  if (!self->preedit_active) {
++    return;
++  }
++  textbox *tb = rofi_view_get_active_text();
++  if (tb != NULL) {
++    textbox_text(tb, self->preedit_base ? self->preedit_base : "");
++    textbox_cursor(tb, self->preedit_cursor);
++  }
++  g_clear_pointer(&self->preedit_base, g_free);
++  self->preedit_active = FALSE;
++}
++
+ static void text_input_leave(void *data, struct zwp_text_input_v3 *text_input,
+                              struct wl_surface *surface) {
++  wayland_seat_clear_preedit(data);
+   zwp_text_input_v3_disable(text_input);
+   zwp_text_input_v3_commit(text_input);
+ }
+@@ -1465,17 +1481,42 @@ static void text_input_preedit_string(void *data,
+                                       struct zwp_text_input_v3 *text_input,
+                                       const char *text, int32_t cursor_begin,
+                                       int32_t cursor_end) {
++  wayland_seat *self = data;
+   RofiViewState *state = rofi_view_get_active();
+-  if (state) {
++  textbox *tb = rofi_view_get_active_text();
++  if (state == NULL || tb == NULL) {
++    return;
++  }
++
++  if (text == NULL || text[0] == '\0') {
++    wayland_seat_clear_preedit(self);
+     rofi_view_maybe_update(state);
++    return;
+   }
+-  update_cursor_rectangle(text_input);
+-  zwp_text_input_v3_commit(text_input);
++
++  if (!self->preedit_active) {
++    self->preedit_base = textbox_get_text(tb);
++    self->preedit_cursor = textbox_get_cursor(tb);
++    self->preedit_active = TRUE;
++  }
++
++  gchar *shown =
++      g_strconcat(self->preedit_base ? self->preedit_base : "", text, NULL);
++  textbox_text(tb, shown);
++  textbox_cursor_end(tb);
++  g_free(shown);
++
++  /* Do not send a commit here: fcitx5 answers every commit with a forced
++   * preedit update, so committing from this callback loops forever. */
++  rofi_view_maybe_update(state);
+ }
+ 
+ static void text_input_commit_string(void *data,
+                                      struct zwp_text_input_v3 *text_input,
+                                      const char *text) {
++  wayland_seat *self = data;
++  wayland_seat_clear_preedit(self);
++
+   if (text == NULL) {
+     return;
+   }
+@@ -1485,8 +1526,6 @@ static void text_input_commit_string(void *data,
+     rofi_view_handle_text(state, text);
+     rofi_view_maybe_update(state);
+   }
+-  update_cursor_rectangle(text_input);
+-  zwp_text_input_v3_commit(text_input);
+ }
+ 
+ static void text_input_delete_surrounding_text(
