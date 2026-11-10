@@ -343,7 +343,7 @@ binds {
 // -----------------------------------------------------------------
 spawn-at-startup "/home/cao/.local/bin/sync-desktop-x11" "niri"
 spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP" "XDG_SESSION_TYPE" "DISPLAY"
-spawn-at-startup "/usr/lib/polkit-kde-authentication-agent-1"
+spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
 spawn-at-startup "sh" "-c" "waybar -c ~/.config/waybar/niri/config.jsonc -s ~/.config/waybar/niri/style.css"
 // 静态壁纸已停用，避免 awww 与 mpvpaper 同时占用 background 层
 // spawn-at-startup "sh" "-c" "pgrep -x awww-daemon >/dev/null || awww-daemon & sleep 1; awww img /home/cao/Pictures/wallpapers/In the Court of the Crimson King.jpg || true"

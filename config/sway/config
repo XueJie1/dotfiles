@@ -49,7 +49,7 @@ exec_always ~/.config/sway/launch-magpie.sh
 exec fcitx5 -d
 # Stretchly 是 Electron 应用，本会话把它固定为 X11，等 satellite 的 X server 就绪再启动。
 exec sh -c 'for i in $(seq 1 50); do xrdb -query >/dev/null 2>&1 && break; sleep 0.1; done; exec stretchly'
-exec systemctl --user start plasma-polkit-agent.service
+exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec ~/.config/waybar/sway/launch_waybar.sh 2
 # Plain exec runs once at login, not again on config reload.
 exec ~/.config/sway/wallpaper.py startup
@@ -61,7 +61,7 @@ bindsym $mod+Shift+Return exec kitty --class termfloat
 bindsym $mod+d $menu
 bindsym $mod+space $menu
 bindsym $mod+b exec firefox
-bindsym $mod+e exec dolphin
+bindsym $mod+e exec nautilus
 bindsym $mod+q kill
 bindsym Mod1+F4 kill
 bindsym $mod+Escape exec hyprlock
