@@ -28,7 +28,10 @@ ButtonMouseArea {
     property real activeWorkspaceSize: workspaceButtonWidth - activeWorkspaceMargin * 2
     property real workspaceIconSize: workspaceButtonWidth * 0.69
     property real workspaceIconSizeShrinked: workspaceButtonWidth * 0.55
-    property real workspaceIconOpacityShrinked: 1
+    // 按住 Super 时数字会显示，而数字层（z:4）在应用图标层（z:6）下面，
+    // 图标压在数字上会把笔画切掉一块，看着像“粗细不匀”。数字显示期间隐藏图标：
+    // 哪个工作区有窗口，数字颜色本身已经区分（占用=深色，空=浅色）。
+    property real workspaceIconOpacityShrinked: 0
     property real workspaceIconMarginShrinked: -4
     property int workspaceIndexInGroup: (monitor?.activeWorkspace?.id - 1) % wsModel.shownCount
     property real specialTextSize: workspaceButtonWidth * 0.5
@@ -395,7 +398,11 @@ ButtonMouseArea {
             StyledText {
                 anchors.centerIn: parent
                 font {
-                    pixelSize: Appearance.font.pixelSize.small - ((text.length - 1) * (text !== "10") * 2)
+                    // 字号取 4 的整数倍：4×{1,1.25,1.5,1.75,2} 都是整数，字形才会落在
+                    // 整设备像素上。原来的 15px 在 1.25 倍缩放下等于 18.75 设备像素，
+                    // 笔画有的落在整像素、有的落在半像素，看起来就是“粗细不一致”。
+                    // （QFont 的 pixelSize 是整数，写 15.2 会被截断，所以只能靠选整数逻辑字号。）
+                    pixelSize: (text.length > 1 && text !== "10") ? 12 : 16
                     family: Config.options?.bar.workspaces.useNerdFont ? Appearance.font.family.iconNerd : defaultFont
                 }
                 // 未占用工作区数字原本是 colOnLayer1Inactive（alpha≈0.5），
