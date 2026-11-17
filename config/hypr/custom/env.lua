@@ -1,25 +1,25 @@
--- GPU selection is set before Hyprland starts by ~/.zprofile and
--- ~/.config/hypr/gpu-login.sh. Changing it requires a new login session.
+-- 环境变量：代理、输入法、中文界面、光标。
+-- 由 hyprland/env.lua 之后加载，所以这里的值覆盖上游默认。
 
--- Clash Party proxy (mixed port).
+-- Clash Party 代理（mixed 端口）。
 hl.env("http_proxy", "http://127.0.0.1:7890")
 hl.env("https_proxy", "http://127.0.0.1:7890")
 hl.env("all_proxy", "socks5://127.0.0.1:7890")
 
--- Fcitx5 input method. GTK uses the native Wayland frontend;
--- Qt applications such as Quickshell use the Fcitx Qt frontend.
+-- Fcitx5：GTK 用原生 Wayland 前端，Qt（Quickshell 等）用 Fcitx Qt 前端。
 hl.env("QT_IM_MODULE", "fcitx")
 hl.env("XMODIFIERS", "@im=fcitx")
 hl.env("SDL_IM_MODULE", "fcitx")
 
--- Use Chinese for applications launched by Hyprland/Quickshell.
--- LANGUAGE gives applications a fallback list; LC_MESSAGES controls UI text.
+-- 应用界面用中文。
 hl.env("LANG", "zh_CN.UTF-8")
 hl.env("LANGUAGE", "zh_CN:zh")
 hl.env("LC_MESSAGES", "zh_CN.UTF-8")
 
--- Keep X11/XWayland cursors consistent with Hyprland.
-hl.env("XCURSOR_THEME", "Bibata-Modern-Classic")
-hl.env("XCURSOR_SIZE", "24")
--- Override the previous desktop's generated Electron backend at login.
+-- 光标主题与大小（和 sway 会话保持一致）。
+hl.env("XCURSOR_THEME", "fireflys-pixel-cursors")
+hl.env("XCURSOR_SIZE", "32")
+
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "wayland")
+hl.env("MOZ_ENABLE_WAYLAND", "1")
+hl.env("_JAVA_AWT_WM_NONREPARENTING", "1")

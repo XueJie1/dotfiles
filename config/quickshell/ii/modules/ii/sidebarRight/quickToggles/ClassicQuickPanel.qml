@@ -35,6 +35,5 @@ AbstractQuickPanel {
         IdleInhibitor {}
         EasyEffectsToggle {}
         CloudflareWarp {}
-        PlatformProfile {}
     }
 }

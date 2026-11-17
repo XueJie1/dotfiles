@@ -12,9 +12,7 @@ import Quickshell.Hyprland
 Item {
     id: root
     property bool borderless: Config.options.bar.borderless
-    // Prefer the music player (one that reports an artist) so lyrics follow
-    // MyGo instead of a browser video; falls back to the normal active player.
-    readonly property MprisPlayer activePlayer: LyricsService.player ?? MprisController.activePlayer
+    readonly property MprisPlayer activePlayer: MprisController.activePlayer
     readonly property string cleanedTitle: StringUtils.cleanMusicTitle(activePlayer?.trackTitle) || Translation.tr("No media")
 
     Layout.fillHeight: true
@@ -39,9 +37,6 @@ Item {
             } else if (event.button === Qt.ForwardButton || event.button === Qt.RightButton) {
                 activePlayer.next();
             } else if (event.button === Qt.LeftButton) {
-                // Keep the media panel in sync with what the bar showed.
-                if (activePlayer && activePlayer !== MprisController.activePlayer)
-                    MprisController.setActivePlayer(activePlayer)
                 GlobalStates.mediaControlsOpen = !GlobalStates.mediaControlsOpen
             }
         }
@@ -77,40 +72,16 @@ Item {
             }
         }
 
-        ColumnLayout {
-            id: mediaTextColumn
+        StyledText {
             visible: Config.options.bar.verbose
+            width: rowLayout.width - (CircularProgress.size + rowLayout.spacing * 2)
             Layout.alignment: Qt.AlignVCenter
             Layout.fillWidth: true // Ensures the text takes up available space
             Layout.rightMargin: rowLayout.spacing
-            spacing: -2
-
-            StyledText {
-                Layout.fillWidth: true
-                horizontalAlignment: Text.AlignHCenter
-                elide: Text.ElideRight // Truncates the text on the right
-                font.pixelSize: Appearance.font.pixelSize.smaller
-                color: Appearance.colors.colOnLayer1
-                opacity: LyricsService.currentLine !== "" ? 0.65 : 1
-                text: `${cleanedTitle}${activePlayer?.trackArtist ? ' • ' + activePlayer.trackArtist : ''}`
-
-                Behavior on opacity {
-                    NumberAnimation { duration: 200 }
-                }
-            }
-
-            // Current synced lyric line (space keeps the row height stable
-            // during intros/instrumental gaps). Long lines scroll sideways.
-            ScrollingText {
-                Layout.fillWidth: true
-                visible: LyricsService.status === "ok"
-                text: LyricsService.currentLine !== "" ? LyricsService.currentLine : " "
-                textPixelSize: Appearance.font.pixelSize.smallie
-                textColor: Appearance.colors.colPrimary
-                playbackPosition: LyricsService.position
-                lineStart: LyricsService.lineStart
-                lineEnd: LyricsService.lineEnd
-            }
+            horizontalAlignment: Text.AlignHCenter
+            elide: Text.ElideRight // Truncates the text on the right
+            color: Appearance.colors.colOnLayer1
+            text: `${cleanedTitle}${activePlayer?.trackArtist ? ' • ' + activePlayer.trackArtist : ''}`
         }
 
     }

@@ -18,6 +18,12 @@ export WLR_DRM_DEVICES="$nvidia_card"
 export WLR_RENDER_DRM_DEVICE="$nvidia_render"
 export WLR_BACKENDS=drm,libinput
 export WLR_RENDERER=gles2
+# NVIDIA workarounds (both read by wlroots):
+# - its cursor plane updates late/janky, so draw the cursor in the frame instead
+# - explicit sync on this driver hands wlroots buffers the client is still
+#   drawing (GTK4 text/list glitches); implicit dma-fence sync works
+export WLR_NO_HARDWARE_CURSORS=1
+export WLR_RENDER_NO_EXPLICIT_SYNC=1
 # A login session must start on DRM, never nest inside the greeter's display.
 unset DISPLAY WAYLAND_DISPLAY WAYLAND_SOCKET
 
@@ -27,6 +33,9 @@ export __NV_PRIME_RENDER_OFFLOAD=1
 export __VK_LAYER_NV_optimus=NVIDIA_only
 export DRI_PRIME=1
 export LIBVA_DRIVER_NAME=nvidia
+# GTK4: GTK 4.20 made the Vulkan renderer the default, and on this driver it
+# garbles text/lists and freezes windows; ngl (GL) is the tested path here.
+export GSK_RENDERER=ngl
 # WebKit picks its own renderer: forcing the flags breaks it on this driver.
 export MAGPIE_WEBKIT_COMPAT=0
 export XDG_CURRENT_DESKTOP=sway
@@ -51,5 +60,14 @@ export DISPLAY=:$display_number
 unset XAUTHORITY
 export _JAVA_AWT_WM_NONREPARENTING=1
 mkdir -p "$HOME/.local/state/sway"
+# The card idles at ~400 MHz and the first heavy frame (fullscreen switch, an
+# animation not played for a while) then misses the 144 Hz deadline. Raise the
+# clock floor for this session only -- the Intel session keeps the dGPU asleep.
+# Released again when sway exits; the helper and its sudoers rule are
+# /usr/local/bin/nvidia-display-perf (sudoers drop-in: nvidia-display-perf).
+sudo -n /usr/local/bin/nvidia-display-perf on 2>/dev/null || true
 # wlroots refuses to start on the proprietary driver unless this flag is passed.
-exec /usr/bin/sway --unsupported-gpu --config "$HOME/.config/sway/config-nvidia" "$@" >> "$HOME/.local/state/sway/nvidia.log" 2>&1
+status=0
+/usr/bin/sway --unsupported-gpu --config "$HOME/.config/sway/config-nvidia" "$@" >> "$HOME/.local/state/sway/nvidia.log" 2>&1 || status=$?
+sudo -n /usr/local/bin/nvidia-display-perf off 2>/dev/null || true
+exit "$status"

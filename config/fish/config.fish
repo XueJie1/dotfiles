@@ -1,23 +1,33 @@
+# Commands to run in interactive sessions can go here
 if status is-interactive
-    # Commands to run in interactive sessions can go here
+    # No greeting
+    set fish_greeting
+
+    # Use starship
+    function starship_transient_prompt_func
+        starship module character
+    end
+    if test "$TERM" != "linux"
+        starship init fish | source
+        enable_transience
+    end
+    
+    # Colors
+    if test -f ~/.local/state/quickshell/user/generated/terminal/sequences.txt
+        cat ~/.local/state/quickshell/user/generated/terminal/sequences.txt
+    end
+
+    # Aliases
+    # kitty doesn't clear properly so we need to do this weird printing
+    alias clear "printf '\033[2J\033[3J\033[1;1H'"
+    alias celar "printf '\033[2J\033[3J\033[1;1H'"
+    alias claer "printf '\033[2J\033[3J\033[1;1H'"
+    alias pamcan pacman
+    alias q 'qs -c ii'
+    if test "$TERM" != "linux"
+        alias ls 'eza --icons=auto'
+    end
+    if test "$TERM" = "xterm-kitty"
+        alias ssh 'kitten ssh'
+    end
 end
-
-#start X at login
-#if status --is-login
-#    if test -z "$DISPLAY" -a $XDG_VTNR = 1
-#        exec startx
-#    end
-#end
-
-# If running from tty1 start sway
-set TTY1 (tty)
-[ "$TTY1" = "/dev/tty1" ] && exec dbus-run-session sway --unsupported-gpu
-
-
-# If running from tty1 start Hyprland
-#set TTY1 (tty)
-#[ "$TTY1" = "/dev/tty1" ] && exec Hyprland
-
-
-# Added by Antigravity CLI installer
-set -gx PATH "/home/cao/.local/bin" $PATH

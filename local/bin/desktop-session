@@ -68,12 +68,15 @@ if name in applications or name == "sway-x11":
             if name == "windterm":
                 os.environ["QT_QPA_PLATFORM"] = "xcb"
             if name in {"google-chrome-stable", "code", "code-oss"}:
-                os.environ["ELECTRON_OZONE_PLATFORM_HINT"] = "x11"
-                # Read the synchronized scale instead of keeping another hard-coded 1.25.
-                flags = config / ("chrome-flags.conf" if name == "google-chrome-stable" else "code-flags.conf")
-                lines = flags.read_text().splitlines() if flags.exists() else []
-                scale_flag = next((line for line in lines if line.startswith("--force-device-scale-factor=")), "--force-device-scale-factor=1.25")
-                command[1:1] = ["--ozone-platform=x11", scale_flag]
+                # Chrome draws on Wayland natively (its flags file says so); only the
+                # Electron apps keep the X11 bridge, for the cursor they need there.
+                if name != "google-chrome-stable":
+                    os.environ["ELECTRON_OZONE_PLATFORM_HINT"] = "x11"
+                    # Read the synchronized scale instead of keeping another hard-coded 1.25.
+                    flags = config / "code-flags.conf"
+                    lines = flags.read_text().splitlines() if flags.exists() else []
+                    scale_flag = next((line for line in lines if line.startswith("--force-device-scale-factor=")), "--force-device-scale-factor=1.25")
+                    command[1:1] = ["--ozone-platform=x11", scale_flag]
     os.execvp(command[0], command)
 
 
@@ -229,14 +232,18 @@ with (state / "settings.lock").open("w") as lock:
         write(home / ".local/state/sway/xcursor.json", json.dumps(snapshot, indent=2) + "\n")
 
     # Preserve unrelated flags while switching the display-backend/scale policy.
-    backend = "x11" if desktop == "sway" else "wayland"
+    # Chrome takes Wayland on sway too: with the patched scale filter its 1.25x
+    # surface stays sharp, and dropping the X11 bridge saves the Xwayland hop.
+    # The Electron apps (code, Obsidian's electron-flags) keep X11 for the cursor.
     for name in ("chrome-flags.conf", "code-flags.conf", "electron-flags.conf"):
         path = config / name
+        backend = "x11" if desktop == "sway" and name != "chrome-flags.conf" else "wayland"
         lines = path.read_text().splitlines() if path.exists() else []
         lines = [line for line in lines if not line.strip().startswith(
             ("--ozone-platform=", "--force-device-scale-factor="))]
         lines.append(f"--ozone-platform={backend}")
-        if desktop == "sway":
+        # Wayland gets the scale from wp_fractional_scale_v1; only X11 needs forcing.
+        if backend == "x11":
             lines.append(f"--force-device-scale-factor={scale:g}")
         write(path, "\n".join(lines) + "\n")
 

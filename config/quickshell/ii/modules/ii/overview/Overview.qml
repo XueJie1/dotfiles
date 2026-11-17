@@ -50,21 +50,7 @@ Scope {
                         searchWidget.cancelSearch();
                     }
                     GlobalFocusGrab.addDismissable(panelWindow);
-                    // OnDemand layer-shell focus is granted asynchronously. Re-focus
-                    // the actual TextField after the panel is mapped so Qt can create
-                    // an input-method context (required by Fcitx5 preedit/commit).
-                    searchFocusTimer.restart();
                 }
-            }
-        }
-
-        Timer {
-            id: searchFocusTimer
-            interval: Config.options.hacks.arbitraryRaceConditionDelay
-            repeat: false
-            onTriggered: {
-                if (GlobalStates.overviewOpen)
-                    searchWidget.focusSearchInput();
             }
         }
 
@@ -109,9 +95,9 @@ Scope {
                 id: overviewLoader
                 anchors.horizontalCenter: parent.horizontalCenter
                 active: GlobalStates.overviewOpen && (Config?.options.overview.enable ?? true)
+                visible: (panelWindow.searchingText == "")
                 sourceComponent: OverviewWidget {
                     screen: panelWindow.screen
-                    visible: (panelWindow.searchingText == "")
                 }
             }
         }

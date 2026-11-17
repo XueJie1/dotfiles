@@ -1,49 +1,34 @@
 [config]
-# 全局配色：暗色 scheme-content
-type = "scheme-content"
-mode = "dark"
+version_check = false
 
-# Niri 桌面组件
-[templates.niri]
-input_path = '/home/cao/.config/niri/templates/colors.kdl'
-output_path = '/home/cao/.config/niri/dynamic_colors.kdl'
-post_hook = 'niri msg action load-config-file'
+[templates.m3colors]
+input_path = '~/.config/matugen/templates/colors.json'
+output_path = '~/.local/state/quickshell/user/generated/colors.json'
 
-[templates.waybar]
-input_path = '/home/cao/.config/waybar/niri/templates/colors.css'
-output_path = '/home/cao/.config/waybar/niri/dynamic_colors.css'
-post_hook = 'pkill -SIGUSR2 waybar'
-
-[templates.fuzzel]
-input_path = '/home/cao/.config/fuzzel/templates/fuzzel.ini'
-output_path = '/home/cao/.config/fuzzel/fuzzel.ini'
-
-[templates.wlogout]
-input_path = '/home/cao/.config/wlogout/templates/style.css'
-output_path = '/home/cao/.config/wlogout/style.css'
+[templates.hyprland]
+input_path = '~/.config/matugen/templates/hyprland/colors.lua'
+output_path = '~/.config/hypr/hyprland/colors.lua'
 
 [templates.hyprlock]
-input_path = '~/.config/matugen/templates/colors-hyprlock.conf'
-output_path = '~/.cache/matugen/colors-hyprlock.conf'
+input_path = '~/.config/matugen/templates/hyprland/hyprlock-colors.conf'
+output_path = '~/.config/hypr/hyprlock/colors.conf'
 
-# 应用主题
+[templates.fuzzel]
+input_path = '~/.config/matugen/templates/fuzzel/fuzzel_theme.ini'
+output_path = '~/.config/fuzzel/fuzzel_theme.ini'
+
 [templates.gtk3]
-input_path = '~/.config/matugen/templates/gtk-colors.css'
+input_path = '~/.config/matugen/templates/gtk-3.0/gtk.css'
 output_path = '~/.config/gtk-3.0/gtk.css'
 
-[templates.rofi]
-input_path = '~/.config/matugen/templates/colors.rasi'
-output_path = '~/.config/rofi/colors.rasi'
+[templates.gtk4]
+input_path = '~/.config/matugen/templates/gtk-4.0/gtk.css'
+output_path = '~/.config/gtk-4.0/gtk.css'
 
-[templates.btop]
-input_path = '~/.config/matugen/templates/btop.theme'
-output_path = '~/.config/btop/themes/matugen.theme'
+[templates.kde_colors]
+input_path = '~/.config/matugen/templates/kde/color.txt'
+output_path = '~/.local/state/quickshell/user/generated/color.txt'
 
-[templates.fastfetch]
-input_path = '~/.config/matugen/templates/fastfetch.jsonc'
-output_path = '~/.config/fastfetch/config.jsonc'
-
-[templates.fcitx5]
-input_path = '~/.config/matugen/templates/fcitx5-theme.conf'
-output_path = '~/.local/share/fcitx5/themes/matugen/theme.conf'
-post_hook = 'fcitx5-remote -r'
+[templates.wallpaper]
+input_path = '~/.config/matugen/templates/wallpaper.txt'
+output_path = '~/.local/state/quickshell/user/generated/wallpaper/path.txt'
