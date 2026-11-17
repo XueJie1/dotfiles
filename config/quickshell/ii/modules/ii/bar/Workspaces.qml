@@ -189,25 +189,15 @@ ButtonMouseArea {
         WorkspaceLayout {
             id: numbersGrid
             z: 4
-            layer.enabled: true // For the masking
+            // 关掉离屏 layer：layer 的纹理会随 1.25 倍缩放被重采样，数字边缘发毛。
+            // 关掉后数字直接画进窗口，边缘明显更实；代价是下面 z:5 的 Colorizer 遮罩失效，
+            // 所以活动项的颜色改为在 contentColor 里直接给定（见下）。
+            layer.enabled: false
 
             Repeater {
                 model: wsModel.shownCount
                 delegate: NumberWorkspaceItem {}
             }
-        }
-        Colorizer {
-            z: 5
-            anchors.fill: numbersGrid
-            colorizationColor: Appearance.colors.colOnPrimary
-            sourceColor: Appearance.colors.colOnSecondaryContainer
-
-            source: activeIndicator
-            maskEnabled: true
-            maskSource: numbersGrid
-
-            maskThresholdMin: 0.5
-            maskSpreadAtMin: 1
         }
 
         /////////////////// App icons ///////////////////
@@ -372,7 +362,11 @@ ButtonMouseArea {
         id: wsNum
         property bool hasBiggestWindow: !!wsModel.biggestWindow[index]
         property int wsId: wsModel.getWorkspaceIdAt(index)
-        property color contentColor: (wsModel.occupied[wsNum.index] && wsId !== wsModel.fakeWorkspace) ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colOnLayer1Inactive
+        // 活动项坐在深色胶囊上，直接用胶囊上的浅色（原先靠 z:5 的 Colorizer 遮罩着色）。
+        readonly property bool _active: wsId === (root.monitor?.activeWorkspace?.id ?? -1)
+        property color contentColor: _active ? Appearance.colors.colOnPrimary
+            : (wsModel.occupied[wsNum.index] && wsId !== wsModel.fakeWorkspace) ? Appearance.colors.colOnSecondaryContainer
+            : Appearance.colors.colOnLayer1Inactive
         property bool showingNumbers: {
             if (root.superPressAndHeld)
                 return true;

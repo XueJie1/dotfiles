@@ -56,7 +56,9 @@ Scope {
                 exclusiveZone: (Config?.options.bar.autoHide.enable && (!mustShow || !Config?.options.bar.autoHide.pushWindows)) ? 0 :
                     Appearance.sizes.baseBarHeight + (Config.options.bar.cornerStyle === 1 ? Appearance.sizes.hyprlandGapsOut : 0)
                 WlrLayershell.namespace: "quickshell:bar"
-                implicitHeight: Appearance.sizes.barHeight + Appearance.rounding.screenRounding
+                // 高度对齐到 4 的倍数：63×1.25=78.75 不是整数，合成器会把 79px 缓冲
+                // 压到 78.75px，整条 bar 被重采样，所有小字都发毛。对齐后 64×1.25=80，1:1。
+                implicitHeight: Math.ceil((Appearance.sizes.barHeight + Appearance.rounding.screenRounding) / 4) * 4
                 mask: Region {
                     item: hoverMaskRegion
                 }
