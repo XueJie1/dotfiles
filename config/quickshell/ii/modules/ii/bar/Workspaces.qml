@@ -398,7 +398,9 @@ ButtonMouseArea {
                     pixelSize: Appearance.font.pixelSize.small - ((text.length - 1) * (text !== "10") * 2)
                     family: Config.options?.bar.workspaces.useNerdFont ? Appearance.font.family.iconNerd : defaultFont
                 }
-                color: wsNum.contentColor
+                // 未占用工作区数字原本是 colOnLayer1Inactive（alpha≈0.5），
+                // 半透明小字叠在浅色药丸上像蒙了一层灰；数字本身强制不透明。
+                color: Qt.rgba(wsNum.contentColor.r, wsNum.contentColor.g, wsNum.contentColor.b, 1)
                 text: Config.options?.bar.workspaces.numberMap[wsNum.wsId - 1] || wsNum.wsId
             }
         }
